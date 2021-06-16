@@ -13,7 +13,7 @@
         }
     },
     "ftrack": {
-        "enabled": true,
+        "enabled": false,
         "ftrack_server": "",
         "ftrack_actions_path": [],
         "ftrack_events_path": [],
@@ -178,6 +178,9 @@
         }
     },
     "log_viewer": {
+        "enabled": true
+    },
+    "shotgun": {
         "enabled": true
     },
     "standalonepublish_tool": {
