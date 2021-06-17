@@ -1,12 +1,17 @@
+import os
 from typing import Optional, Dict, AnyStr, Any
 from Qt import QtWidgets
-from openpype.modules import PypeModule, ITrayModule
+from openpype.modules import PypeModule, ITrayModule, IPluginPaths, ILaunchHookPaths
+from openpype.modules.shotgun.tray.shotgun_tray import ShotgunTrayWrapper
+
+SHOTGUN_MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class ShotgunModule(PypeModule, ITrayModule):
+class ShotgunModule(PypeModule, ITrayModule, IPluginPaths, ILaunchHookPaths):
     name: str = "shotgun"
     enabled: bool = False
     project_id: Optional[str] = None
+    tray_wrapper: ShotgunTrayWrapper
 
     def initialize(self, modules_settings: Dict[AnyStr, Any]):
         shotgun_settings = modules_settings.get(self.name, dict())
@@ -19,19 +24,24 @@ class ShotgunModule(PypeModule, ITrayModule):
     def connect_with_modules(self, enabled_modules):
         pass
 
-    def get_global_environments(self):
+    def get_global_environments(self) -> Dict[AnyStr, Any]:
         return {"PROJECT_ID": self.project_id}
 
+    def get_plugin_paths(self) -> Dict[AnyStr, Any]:
+        return {"publish": [os.path.join(SHOTGUN_MODULE_DIR, "plugins", "publish")]}
+
+    def get_launch_hook_paths(self) -> AnyStr:
+        return os.path.join(SHOTGUN_MODULE_DIR, "hooks")
+
     def tray_init(self):
-        pass
+        self.tray_wrapper = ShotgunTrayWrapper(self)
 
     def tray_start(self):
-        pass
+        return self.tray_wrapper.validate()
 
     def tray_exit(self, *args, **kwargs):
-        pass
+        return self.tray_wrapper
 
     def tray_menu(self, tray_menu):
-        print(type(tray_menu))
-        menu = QtWidgets.QMenu("Shotgun", tray_menu)
-        tray_menu.addMenu(menu)
+        return self.tray_wrapper.tray_menu(tray_menu)
+
