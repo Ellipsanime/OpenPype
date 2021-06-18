@@ -1,6 +1,6 @@
 import os
 from typing import Optional, Dict, AnyStr, Any
-from Qt import QtWidgets
+
 from openpype.modules import PypeModule, ITrayModule, IPluginPaths, ILaunchHookPaths
 from openpype.modules.shotgun.tray.shotgun_tray import ShotgunTrayWrapper
 
@@ -44,4 +44,3 @@ class ShotgunModule(PypeModule, ITrayModule, IPluginPaths, ILaunchHookPaths):
 
     def tray_menu(self, tray_menu):
         return self.tray_wrapper.tray_menu(tray_menu)
-

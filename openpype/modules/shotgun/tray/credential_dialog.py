@@ -1,11 +1,8 @@
-import os
 from typing import Any
 
-import requests
+from Qt import QtCore, QtWidgets
+
 from openpype import style
-from openpype.modules.ftrack.lib import credentials
-from openpype import resources
-from Qt import QtCore, QtGui, QtWidgets
 
 
 class CredentialsDialog(QtWidgets.QDialog):
