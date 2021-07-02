@@ -1,10 +1,10 @@
 from typing import Any
 
-from openpype.modules.shotgun.tray.credential_dialog import CredentialsDialog
+from openpype.modules.shotgrid.tray.credential_dialog import CredentialsDialog
 from Qt import QtWidgets
 
 
-class ShotgunTrayWrapper:
+class ShotgridTrayWrapper:
     module: Any
     credentials_dialog: CredentialsDialog
 
@@ -22,8 +22,8 @@ class ShotgunTrayWrapper:
 
     def tray_menu(self, tray_menu):
         print(type(tray_menu))
-        menu = QtWidgets.QMenu("Shotgun", tray_menu)
-        show_connect_action = QtWidgets.QAction("Connect to Shotgun", menu)
+        menu = QtWidgets.QMenu("Shotgrid", tray_menu)
+        show_connect_action = QtWidgets.QAction("Connect to Shotgrid", menu)
         show_connect_action.triggered.connect(self.show_connect_dialog)
         menu.addAction(show_connect_action)
 

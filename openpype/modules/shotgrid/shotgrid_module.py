@@ -2,21 +2,21 @@ import os
 from typing import Optional, Dict, AnyStr, Any
 
 from openpype.modules import PypeModule, ITrayModule, IPluginPaths, ILaunchHookPaths
-from openpype.modules.shotgun.tray.shotgun_tray import ShotgunTrayWrapper
+from openpype.modules.shotgrid.tray.shotgrid_tray import ShotgridTrayWrapper
 
-SHOTGUN_MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+SHOTGRID_MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class ShotgunModule(PypeModule, ITrayModule, IPluginPaths, ILaunchHookPaths):
-    name: str = "shotgun"
+class ShotgridModule(PypeModule, ITrayModule, IPluginPaths, ILaunchHookPaths):
+    name: str = "shotgrid"
     enabled: bool = False
     project_id: Optional[str] = None
-    tray_wrapper: ShotgunTrayWrapper
+    tray_wrapper: ShotgridTrayWrapper
 
     def initialize(self, modules_settings: Dict[AnyStr, Any]):
-        shotgun_settings = modules_settings.get(self.name, dict())
-        self.enabled = shotgun_settings.get("enabled", False)
-        self.project_id = shotgun_settings.get("project_id")
+        shotgrid_settings = modules_settings.get(self.name, dict())
+        self.enabled = shotgrid_settings.get("enabled", False)
+        self.project_id = shotgrid_settings.get("project_id")
 
         # if self.enabled and not self.project_id:
         #     raise Exception("Project id is not set in settings.")
@@ -28,13 +28,13 @@ class ShotgunModule(PypeModule, ITrayModule, IPluginPaths, ILaunchHookPaths):
         return {"PROJECT_ID": self.project_id}
 
     def get_plugin_paths(self) -> Dict[AnyStr, Any]:
-        return {"publish": [os.path.join(SHOTGUN_MODULE_DIR, "plugins", "publish")]}
+        return {"publish": [os.path.join(SHOTGRID_MODULE_DIR, "plugins", "publish")]}
 
     def get_launch_hook_paths(self) -> AnyStr:
-        return os.path.join(SHOTGUN_MODULE_DIR, "hooks")
+        return os.path.join(SHOTGRID_MODULE_DIR, "hooks")
 
     def tray_init(self):
-        self.tray_wrapper = ShotgunTrayWrapper(self)
+        self.tray_wrapper = ShotgridTrayWrapper(self)
 
     def tray_start(self):
         return self.tray_wrapper.validate()

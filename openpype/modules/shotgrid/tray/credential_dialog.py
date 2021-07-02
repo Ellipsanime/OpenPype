@@ -28,7 +28,7 @@ class CredentialsDialog(QtWidgets.QDialog):
 
         self._module = module
         self._is_logged = False
-        self.setWindowTitle("OpenPype - Shotgun Login")
+        self.setWindowTitle("OpenPype - Shotgrid Login")
 
         self.setWindowFlags(
             QtCore.Qt.WindowCloseButtonHint | QtCore.Qt.WindowMinimizeButtonHint
@@ -40,7 +40,7 @@ class CredentialsDialog(QtWidgets.QDialog):
         self.ui_init()
 
     def ui_init(self):
-        self.url_label = QtWidgets.QLabel("Shotgun URL:")
+        self.url_label = QtWidgets.QLabel("Shotgrid URL:")
         self.login_label = QtWidgets.QLabel("Login:")
         self.password_label = QtWidgets.QLabel("Password:")
         # self.url_input = QtWidgets.QLabel()
@@ -50,7 +50,7 @@ class CredentialsDialog(QtWidgets.QDialog):
         # self.url_input.setCursor(QtGui.QCursor(QtCore.Qt.IBeamCursor))
 
         self.url_input = QtWidgets.QLineEdit()
-        self.url_input.setPlaceholderText("shotgun url")
+        self.url_input.setPlaceholderText("shotgrid url")
 
         self.login_input = QtWidgets.QLineEdit()
         self.login_input.setPlaceholderText("login")
@@ -66,7 +66,7 @@ class CredentialsDialog(QtWidgets.QDialog):
         self.input_layout.addRow(self.password_label, self.password_input)
 
         self.login_button = QtWidgets.QPushButton("Login")
-        self.login_button.setToolTip("Login into shotgun instance")
+        self.login_button.setToolTip("Login into shotgrid instance")
         self.buttons_layout = QtWidgets.QHBoxLayout()
         self.buttons_layout.addWidget(self.login_button)
 
