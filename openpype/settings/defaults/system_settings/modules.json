@@ -129,6 +129,10 @@
             }
         }
     },
+    "shotgrid": {
+        "enabled": true,
+        "shotgrid_server": ""
+    },
     "timers_manager": {
         "enabled": true,
         "auto_stop": true,
@@ -178,9 +182,6 @@
         }
     },
     "log_viewer": {
-        "enabled": true
-    },
-    "shotgun": {
         "enabled": true
     },
     "standalonepublish_tool": {

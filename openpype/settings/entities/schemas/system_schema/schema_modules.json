@@ -46,6 +46,25 @@
         },
         {
             "type": "dict",
+            "key": "shotgrid",
+            "label": "Shotgrid",
+            "collapsible": true,
+            "checkbox_key": "enabled",
+            "children": [
+                {
+                    "type": "boolean",
+                    "key": "enabled",
+                    "label": "Enabled"
+                },
+                {
+                    "type": "text",
+                    "key": "shotgrid_server",
+                    "label": "Server URL"
+                }
+            ]
+        },
+        {
+            "type": "dict",
             "key": "timers_manager",
             "label": "Timers Manager",
             "collapsible": true,
