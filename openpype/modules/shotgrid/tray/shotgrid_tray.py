@@ -21,7 +21,6 @@ class ShotgridTrayWrapper:
         self.credentials_dialog.raise_()
 
     def tray_menu(self, tray_menu):
-        print(type(tray_menu))
         menu = QtWidgets.QMenu("Shotgrid", tray_menu)
         show_connect_action = QtWidgets.QAction("Connect to Shotgrid", menu)
         show_connect_action.triggered.connect(self.show_connect_dialog)
