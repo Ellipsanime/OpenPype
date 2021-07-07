@@ -3,13 +3,14 @@ from Qt import QtCore, QtWidgets, QtGui
 
 from openpype import style
 from openpype import resources
+from openpype.api import get_system_settings
 
 import shotgun_api3
 from shotgun_api3.shotgun import AuthenticationFault
 
 
 class CredentialsDialog(QtWidgets.QDialog):
-    SIZE_W = 350
+    SIZE_W = 450
     SIZE_H = 150
 
     _module: Any = None
@@ -46,6 +47,7 @@ class CredentialsDialog(QtWidgets.QDialog):
         self.setStyleSheet(style.load_stylesheet())
 
         self.ui_init()
+        self.fill_ftrack_url()
 
     def ui_init(self):
         self.url_label = QtWidgets.QLabel("Shotgrid URL:")
@@ -53,7 +55,7 @@ class CredentialsDialog(QtWidgets.QDialog):
         self.password_label = QtWidgets.QLabel("Password:")
 
         self.url_input = QtWidgets.QLineEdit()
-        self.url_input.setPlaceholderText("shotgrid url")
+        self.url_input.setReadOnly(True)
 
         self.login_input = QtWidgets.QLineEdit()
         self.login_input.setPlaceholderText("login")
@@ -95,30 +97,22 @@ class CredentialsDialog(QtWidgets.QDialog):
         self.fill_ftrack_url()
 
     def fill_ftrack_url(self):
-        pass
-        # url = os.getenv("SHOTGRID_SERVER")
-        # checked_url = self.check_url(url)
-        # if checked_url == self.ftsite_input.text():
-        #     return
+        shotgrid_settings = (
+            get_system_settings().get("modules", {}).get("shotgrid", {})
+        )
 
-        # self.ftsite_input.setText(checked_url or "< Not set >")
+        url = shotgrid_settings.get("shotgrid_server")
 
-        # enabled = bool(checked_url)
+        if url:
+            self.url_input.setText(url)
+            enabled = True
+        else:
+            self.url_input.setText("Ask your admin to add the shotgrid url")
+            self.login_button.hide()
+            enabled = False
 
-        # self.btn_login.setEnabled(enabled)
-        # self.btn_ftrack_login.setEnabled(enabled)
-
-        # self.api_input.setEnabled(enabled)
-        # self.user_input.setEnabled(enabled)
-
-        # if not url:
-        #     self.btn_advanced.hide()
-        #     self.btn_simple.hide()
-        #     self.btn_ftrack_login.hide()
-        #     self.btn_login.hide()
-        #     self.note_label.hide()
-        #     self.api_input.hide()
-        #     self.user_input.hide()
+        self.login_input.setEnabled(enabled)
+        self.password_input.setEnabled(enabled)
 
     def _on_shotgrid_login_clicked(self):
         login = self.login_input.text().strip()
