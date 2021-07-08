@@ -1,17 +1,15 @@
-from typing import Any
+from typing import Any, AnyStr
 from Qt import QtCore, QtWidgets, QtGui
 
 from openpype import style
 from openpype import resources
-from openpype.api import get_system_settings
-
-import shotgun_api3
-from shotgun_api3.shotgun import AuthenticationFault
+from openpype.modules.shotgrid.lib import credentials
+from openpype.modules.shotgrid.lib import settings
 
 
 class CredentialsDialog(QtWidgets.QDialog):
     SIZE_W = 450
-    SIZE_H = 150
+    SIZE_H = 200
 
     _module: Any = None
     _is_logged: bool = False
@@ -47,7 +45,6 @@ class CredentialsDialog(QtWidgets.QDialog):
         self.setStyleSheet(style.load_stylesheet())
 
         self.ui_init()
-        self.fill_ftrack_url()
 
     def ui_init(self):
         self.url_label = QtWidgets.QLabel("Shotgrid URL:")
@@ -65,6 +62,7 @@ class CredentialsDialog(QtWidgets.QDialog):
         self.password_input.setEchoMode(QtWidgets.QLineEdit.Password)
 
         self.error_label = QtWidgets.QLabel("")
+        self.error_label.setStyleSheet("color: red;")
         self.error_label.setWordWrap(True)
         self.error_label.hide()
 
@@ -85,6 +83,7 @@ class CredentialsDialog(QtWidgets.QDialog):
         self.logout_button.clicked.connect(self._on_shotgrid_logout_clicked)
 
         self.buttons_layout = QtWidgets.QHBoxLayout()
+        self.buttons_layout.addWidget(self.logout_button)
         self.buttons_layout.addWidget(self.login_button)
 
         self.main_widget = QtWidgets.QVBoxLayout(self)
@@ -94,25 +93,41 @@ class CredentialsDialog(QtWidgets.QDialog):
 
     def show(self, *args, **kwargs):
         super(CredentialsDialog, self).show(*args, **kwargs)
-        self.fill_ftrack_url()
+        self._fill_shotgrid_url()
+        self._fill_shotgrid_login()
 
-    def fill_ftrack_url(self):
-        shotgrid_settings = (
-            get_system_settings().get("modules", {}).get("shotgrid", {})
-        )
-
-        url = shotgrid_settings.get("shotgrid_server")
+    def _fill_shotgrid_url(self):
+        url = settings.get_shotgrid_url()
 
         if url:
             self.url_input.setText(url)
+            self._valid_input(self.url_input)
+            self.login_button.show()
+            self.logout_button.show()
             enabled = True
         else:
             self.url_input.setText("Ask your admin to add the shotgrid url")
+            self._invalid_input(self.url_input)
             self.login_button.hide()
+            self.logout_button.hide()
             enabled = False
 
         self.login_input.setEnabled(enabled)
         self.password_input.setEnabled(enabled)
+
+    def _fill_shotgrid_login(self):
+        cred = credentials.get_credentials(settings.get_shotgrid_url())
+        login = cred.get("login")
+        password = cred.get("login")
+
+        if login:
+            self.login_input.setText(login)
+        if password:
+            self.password_input.setText(password)
+
+    def _clear_shotgrid_login(self):
+        self.login_input.setText("")
+        self.password_input.setText("")
 
     def _on_shotgrid_login_clicked(self):
         login = self.login_input.text().strip()
@@ -127,50 +142,59 @@ class CredentialsDialog(QtWidgets.QDialog):
             missing.append("password")
             self._invalid_input(self.password_input)
 
+        url = settings.get_shotgrid_url()
+        if url == "":
+            missing.append("url")
+            self._invalid_input(self.url_input)
+
         if len(missing) > 0:
             self.set_error("You didn't enter {}".format(" and ".join(missing)))
             return
 
-        if not self.login_with_credentials(login, password):
-            self._invalid_input(self.user_input)
-            self._invalid_input(self.api_input)
-            self.set_error(
-                "We're unable to sign in to Ftrack with these credentials"
+        if credentials.check_credentials(
+            login=login,
+            password=password,
+            shotgrid_url=url,
+        ):
+            credentials.save_credentials(
+                login=login, password=password, shotgrid_url=url
             )
-
-        try:
-            sg = shotgun_api3.Shotgun(
-                self.url_input.text(), login=login, password=password
-            )
-
-            sg.preferences_read()
             self._on_login()
 
-        except AuthenticationFault as err:
-            raise AuthenticationFault(err)
-
-        except Exception as err:
-            print(err)
+        self.set_error("CANT LOGIN")
 
     def _on_shotgrid_logout_clicked(self):
-        pass
+        credentials.clear_credentials(settings.get_shotgrid_url())
+        self._clear_shotgrid_login()
+        self._on_logout()
 
-    def set_error(self, msg):
+    def set_error(self, msg: AnyStr):
         self.error_label.setText(msg)
         self.error_label.show()
 
     def _on_login(self):
-        print(
-            f"You are logged into shotgrid with user {self.login_input.text()}"
-        )
         self._is_logged = True
         self._close_widget()
+
+    def _on_logout(self):
+        self._is_logged = False
 
     def _close_widget(self):
         self.hide()
 
-    def _valid_input(self, input_widget):
+    def _valid_input(self, input_widget: QtWidgets.QLineEdit):
         input_widget.setStyleSheet("")
 
-    def _invalid_input(self, input_widget):
+    def _invalid_input(self, input_widget: QtWidgets.QLineEdit):
         input_widget.setStyleSheet("border: 1px solid red;")
+
+    def login_with_credentials(
+        self, url: AnyStr, login: AnyStr, password: AnyStr
+    ) -> bool:
+        verification = credentials.check_credentials(url, login, password)
+        if verification:
+            credentials.save_credentials(login, password, False)
+            self._module.set_credentials_to_env(login, password)
+            self.set_credentials(login, password)
+            self.login_changed.emit()
+        return verification

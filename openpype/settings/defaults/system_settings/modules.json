@@ -131,7 +131,7 @@
     },
     "shotgrid": {
         "enabled": true,
-        "shotgrid_server": ""
+        "shotgrid_url": ""
     },
     "timers_manager": {
         "enabled": true,

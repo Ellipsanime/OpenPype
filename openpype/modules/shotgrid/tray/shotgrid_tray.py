@@ -1,6 +1,9 @@
 from typing import Any
 
 from openpype.modules.shotgrid.tray.credential_dialog import CredentialsDialog
+from openpype.modules.shotgrid.lib import credentials
+from openpype.modules.shotgrid.lib import settings
+
 from Qt import QtWidgets
 
 
@@ -28,6 +31,18 @@ class ShotgridTrayWrapper:
 
         tray_menu.addMenu(menu)
 
-    def validate(self):
-        self.show_credential_dialog()
+    def validate(self) -> bool:
+        shotgrid_url = settings.get_shotgrid_url()
+
+        if not shotgrid_url:
+            self.show_credential_dialog()
+            return True
+
+        cred = credentials.get_credentials(settings.get_shotgrid_url())
+        cred_login = cred.get("login")
+        cred_password = cred.get("password")
+
+        if not cred_login and not cred_password:
+            self.show_credential_dialog()
+
         return True

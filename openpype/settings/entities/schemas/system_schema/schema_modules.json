@@ -58,7 +58,7 @@
                 },
                 {
                     "type": "text",
-                    "key": "shotgrid_server",
+                    "key": "shotgrid_url",
                     "label": "Server URL"
                 }
             ]

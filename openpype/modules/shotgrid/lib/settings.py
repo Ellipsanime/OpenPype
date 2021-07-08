@@ -6,11 +6,11 @@ from openpype.modules.shotgrid.lib.const import MODULE_NAME
 
 
 def get_shotgrid_settings() -> Dict[AnyStr, Any]:
-    return get_system_settings()["modules"][MODULE_NAME]
+    return get_system_settings().get("modules", {}).get(MODULE_NAME, {})
 
 
-def get_shotgrid_url_from_settings() -> AnyStr:
-    return get_shotgrid_settings()["shotgrid_url"]
+def get_shotgrid_url() -> AnyStr:
+    return get_shotgrid_settings().get("shotgrid_url")
 
 
 def get_shotgrid_event_mongo_info() -> Tuple[AnyStr, AnyStr]:

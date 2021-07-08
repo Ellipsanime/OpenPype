@@ -23,7 +23,7 @@ class ShotgridModule(PypeModule, ITrayModule, IPluginPaths, ILaunchHookPaths):
     def initialize(self, modules_settings: Dict[AnyStr, Any]):
         shotgrid_settings = modules_settings.get(self.name, dict())
         self.enabled = shotgrid_settings.get("enabled", False)
-        shotgrid_url = shotgrid_settings.get("shotgrid_server").strip()
+        shotgrid_url = shotgrid_settings.get("shotgrid_url").strip()
 
         self.shotgrid_url = shotgrid_url
 
@@ -59,10 +59,6 @@ class ShotgridModule(PypeModule, ITrayModule, IPluginPaths, ILaunchHookPaths):
 
     def tray_menu(self, tray_menu):
         return self.tray_wrapper.tray_menu(tray_menu)
-
-    def set_credentials_to_env(self, username: AnyStr, api_key: AnyStr):
-        os.environ["SHOTGRID_LOGIN"] = username or ""
-        os.environ["SHOTGRID_PASSWORD"] = api_key or ""
 
     def create_shotgrid_session(self) -> shotgun_api3.Shotgun:
         credentials_ = credentials.get_credentials()
