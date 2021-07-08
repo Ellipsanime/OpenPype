@@ -1,29 +1,11 @@
+from typing import AnyStr, Tuple, Optional
+from urllib.parse import urlparse
+
 import shotgun_api3
-from typing import AnyStr, Dict, Any
 from shotgun_api3.shotgun import AuthenticationFault
 
-try:
-    from urllib.parse import urlparse
-except ImportError:
-    from urlparse import urlparse
-
-
 from openpype.lib import OpenPypeSecureRegistry
-
-_LOGIN_NAME = "login"
-_PASSWORD_NAME = "password"
-
-
-def get_shotgrid_hostname(shotgrid_url: AnyStr) -> AnyStr:
-
-    if not shotgrid_url:
-        raise Exception("Shotgrid url cannot be a null")
-
-    valid_shotgrid_url = (
-        f"//{shotgrid_url}" if "//" not in shotgrid_url else shotgrid_url
-    )
-
-    return urlparse(valid_shotgrid_url).hostname
+from openpype.modules.shotgrid.lib.record import Credentials
 
 
 def _get_shotgrid_secure_key(hostname: AnyStr, key: AnyStr) -> AnyStr:
@@ -31,64 +13,80 @@ def _get_shotgrid_secure_key(hostname: AnyStr, key: AnyStr) -> AnyStr:
     return f"shotgrid/{hostname}/{key}"
 
 
-def get_credentials(shotgrid_url: AnyStr) -> Dict[AnyStr, Any]:
-    output = {_LOGIN_NAME: None, _PASSWORD_NAME: None}
+def _get_secure_value_and_registry(
+    hostname: AnyStr,
+    name: AnyStr,
+) -> Tuple[AnyStr, OpenPypeSecureRegistry]:
+    key = _get_shotgrid_secure_key(hostname, name)
+    registry = OpenPypeSecureRegistry(key)
+    return registry.get_item(name, None), registry
+
+
+def get_shotgrid_hostname(shotgrid_url: AnyStr) -> AnyStr:
+    if not shotgrid_url:
+        raise Exception("Shotgrid url cannot be a null")
+    valid_shotgrid_url = (
+        f"//{shotgrid_url}" if "//" not in shotgrid_url else shotgrid_url
+    )
+    return urlparse(valid_shotgrid_url).hostname
+
+
+def get_credentials(shotgrid_url: AnyStr) -> Optional[Credentials]:
     hostname = get_shotgrid_hostname(shotgrid_url)
     if not hostname:
-        return output
-
-    username_name = _get_shotgrid_secure_key(hostname, _LOGIN_NAME)
-    api_key_name = _get_shotgrid_secure_key(hostname, _PASSWORD_NAME)
-
-    username_registry = OpenPypeSecureRegistry(username_name)
-    api_key_registry = OpenPypeSecureRegistry(api_key_name)
-
-    output[_LOGIN_NAME] = username_registry.get_item(_LOGIN_NAME, None)
-    output[_PASSWORD_NAME] = api_key_registry.get_item(_PASSWORD_NAME, None)
-
-    return output
+        return None
+    login_value, _ = _get_secure_value_and_registry(
+        hostname,
+        Credentials.login_key_prefix(),
+    )
+    password_value, _ = _get_secure_value_and_registry(
+        hostname,
+        Credentials.password_key_prefix(),
+    )
+    return Credentials(login_value, password_value)
 
 
 def save_credentials(login: AnyStr, password: AnyStr, shotgrid_url: AnyStr):
     hostname = get_shotgrid_hostname(shotgrid_url)
-    login_key = _get_shotgrid_secure_key(hostname, _LOGIN_NAME)
-    password_key = _get_shotgrid_secure_key(hostname, _PASSWORD_NAME)
-
-    # Clear credentials
+    _, login_registry = _get_secure_value_and_registry(
+        hostname,
+        Credentials.login_key_prefix(),
+    )
+    _, password_registry = _get_secure_value_and_registry(
+        hostname,
+        Credentials.password_key_prefix(),
+    )
     clear_credentials(shotgrid_url)
-
-    login_registry = OpenPypeSecureRegistry(login_key)
-    password_registry = OpenPypeSecureRegistry(password_key)
-
-    login_registry.set_item(_LOGIN_NAME, login)
-    password_registry.set_item(_PASSWORD_NAME, password)
+    login_registry.set_item(Credentials.login_key_prefix(), login)
+    password_registry.set_item(Credentials.password_key_prefix(), password)
 
 
 def clear_credentials(shotgrid_url: AnyStr):
     hostname = get_shotgrid_hostname(shotgrid_url)
-    login_key = _get_shotgrid_secure_key(hostname, _LOGIN_NAME)
-    password_key = _get_shotgrid_secure_key(hostname, _PASSWORD_NAME)
+    login_value, login_registry = _get_secure_value_and_registry(
+        hostname,
+        Credentials.login_key_prefix(),
+    )
+    password_value, password_registry = _get_secure_value_and_registry(
+        hostname,
+        Credentials.password_key_prefix(),
+    )
 
-    login_registry = OpenPypeSecureRegistry(login_key)
-    password_registry = OpenPypeSecureRegistry(password_key)
+    if login_value is not None:
+        login_registry.delete_item(Credentials.login_key_prefix())
 
-    current_username = login_registry.get_item(_LOGIN_NAME, None)
-    current_api_key = password_registry.get_item(_PASSWORD_NAME, None)
-
-    if current_username is not None:
-        login_registry.delete_item(_LOGIN_NAME)
-
-    if current_api_key is not None:
-        password_registry.delete_item(_PASSWORD_NAME)
+    if password_value is not None:
+        password_registry.delete_item(Credentials.password_key_prefix())
 
 
 def check_credentials(
-    login: AnyStr, password: AnyStr, shotgrid_url: AnyStr
+    login: AnyStr,
+    password: AnyStr,
+    shotgrid_url: AnyStr,
 ) -> bool:
 
     if not shotgrid_url or not login or not password:
         return False
-
     try:
         session = shotgun_api3.Shotgun(
             shotgrid_url,
@@ -97,8 +95,6 @@ def check_credentials(
         )
         session.preferences_read()
         session.close()
-
     except AuthenticationFault:
         return False
-
     return True
