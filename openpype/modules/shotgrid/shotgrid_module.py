@@ -1,6 +1,7 @@
 import os
-from typing import Optional, Dict, AnyStr, Any
+from typing import Optional, Dict, Any
 from openpype.modules.shotgrid.lib import credentials
+from openpype.modules.shotgrid.lib import settings
 import shotgun_api3
 
 from openpype.modules import (
@@ -20,7 +21,7 @@ class ShotgridModule(PypeModule, ITrayModule, IPluginPaths, ILaunchHookPaths):
     project_id: Optional[str] = None
     tray_wrapper: ShotgridTrayWrapper
 
-    def initialize(self, modules_settings: Dict[AnyStr, Any]):
+    def initialize(self, modules_settings: Dict[str, Any]):
         shotgrid_settings = modules_settings.get(self.name, dict())
         self.enabled = shotgrid_settings.get("enabled", False)
         shotgrid_url = shotgrid_settings.get("shotgrid_url").strip()
@@ -35,17 +36,17 @@ class ShotgridModule(PypeModule, ITrayModule, IPluginPaths, ILaunchHookPaths):
     def connect_with_modules(self, enabled_modules):
         pass
 
-    def get_global_environments(self) -> Dict[AnyStr, Any]:
+    def get_global_environments(self) -> Dict[str, Any]:
         return {"PROJECT_ID": self.project_id}
 
-    def get_plugin_paths(self) -> Dict[AnyStr, Any]:
+    def get_plugin_paths(self) -> Dict[str, Any]:
         return {
             "publish": [
                 os.path.join(SHOTGRID_MODULE_DIR, "plugins", "publish")
             ]
         }
 
-    def get_launch_hook_paths(self) -> AnyStr:
+    def get_launch_hook_paths(self) -> str:
         return os.path.join(SHOTGRID_MODULE_DIR, "hooks")
 
     def tray_init(self):
@@ -61,9 +62,9 @@ class ShotgridModule(PypeModule, ITrayModule, IPluginPaths, ILaunchHookPaths):
         return self.tray_wrapper.tray_menu(tray_menu)
 
     def create_shotgrid_session(self) -> shotgun_api3.Shotgun:
-        credentials_ = credentials.get_credentials()
+        credentials_ = credentials.get_credentials(settings.get_shotgrid_url())
         return shotgun_api3.Shotgun(
             base_url=self.shotgrid_url,
-            login=credentials_.get("login"),
-            password=credentials_.get("password"),
+            login=credentials_.login,
+            password=credentials_.password,
         )

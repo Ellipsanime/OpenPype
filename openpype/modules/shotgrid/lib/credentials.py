@@ -1,4 +1,4 @@
-from typing import AnyStr, Tuple, Optional
+from typing import Tuple, Optional
 from urllib.parse import urlparse
 
 import shotgun_api3
@@ -8,21 +8,22 @@ from openpype.lib import OpenPypeSecureRegistry
 from openpype.modules.shotgrid.lib.record import Credentials
 
 
-def _get_shotgrid_secure_key(hostname: AnyStr, key: AnyStr) -> AnyStr:
+def _get_shotgrid_secure_key(hostname: str, key: str) -> str:
     """Secure item key for entered hostname."""
     return f"shotgrid/{hostname}/{key}"
 
 
 def _get_secure_value_and_registry(
-    hostname: AnyStr,
-    name: AnyStr,
-) -> Tuple[AnyStr, OpenPypeSecureRegistry]:
+    hostname: str,
+    name: str,
+) -> Tuple[str, OpenPypeSecureRegistry]:
     key = _get_shotgrid_secure_key(hostname, name)
     registry = OpenPypeSecureRegistry(key)
     return registry.get_item(name, None), registry
 
 
-def get_shotgrid_hostname(shotgrid_url: AnyStr) -> AnyStr:
+def get_shotgrid_hostname(shotgrid_url: str) -> str:
+
     if not shotgrid_url:
         raise Exception("Shotgrid url cannot be a null")
     valid_shotgrid_url = (
@@ -31,7 +32,7 @@ def get_shotgrid_hostname(shotgrid_url: AnyStr) -> AnyStr:
     return urlparse(valid_shotgrid_url).hostname
 
 
-def get_credentials(shotgrid_url: AnyStr) -> Optional[Credentials]:
+def get_credentials(shotgrid_url: str) -> Optional[Credentials]:
     hostname = get_shotgrid_hostname(shotgrid_url)
     if not hostname:
         return None
@@ -46,7 +47,7 @@ def get_credentials(shotgrid_url: AnyStr) -> Optional[Credentials]:
     return Credentials(login_value, password_value)
 
 
-def save_credentials(login: AnyStr, password: AnyStr, shotgrid_url: AnyStr):
+def save_credentials(login: str, password: str, shotgrid_url: str):
     hostname = get_shotgrid_hostname(shotgrid_url)
     _, login_registry = _get_secure_value_and_registry(
         hostname,
@@ -61,7 +62,7 @@ def save_credentials(login: AnyStr, password: AnyStr, shotgrid_url: AnyStr):
     password_registry.set_item(Credentials.password_key_prefix(), password)
 
 
-def clear_credentials(shotgrid_url: AnyStr):
+def clear_credentials(shotgrid_url: str):
     hostname = get_shotgrid_hostname(shotgrid_url)
     login_value, login_registry = _get_secure_value_and_registry(
         hostname,
@@ -80,9 +81,9 @@ def clear_credentials(shotgrid_url: AnyStr):
 
 
 def check_credentials(
-    login: AnyStr,
-    password: AnyStr,
-    shotgrid_url: AnyStr,
+    login: str,
+    password: str,
+    shotgrid_url: str,
 ) -> bool:
 
     if not shotgrid_url or not login or not password:

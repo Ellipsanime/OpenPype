@@ -1,4 +1,4 @@
-from typing import Any, AnyStr
+from typing import Any
 from Qt import QtCore, QtWidgets, QtGui
 
 from openpype import style
@@ -22,7 +22,6 @@ class CredentialsDialog(QtWidgets.QDialog):
     input_layout: QtWidgets.QFormLayout
     login_button: QtWidgets.QPushButton
     buttons_layout: QtWidgets.QHBoxLayout
-    input_layout: QtWidgets.QFormLayout
     main_widget: QtWidgets.QVBoxLayout
 
     def __init__(self, module, parent=None):
@@ -168,7 +167,7 @@ class CredentialsDialog(QtWidgets.QDialog):
         self._clear_shotgrid_login()
         self._on_logout()
 
-    def set_error(self, msg: AnyStr):
+    def set_error(self, msg: str):
         self.error_label.setText(msg)
         self.error_label.show()
 
@@ -189,7 +188,7 @@ class CredentialsDialog(QtWidgets.QDialog):
         input_widget.setStyleSheet("border: 1px solid red;")
 
     def login_with_credentials(
-        self, url: AnyStr, login: AnyStr, password: AnyStr
+        self, url: str, login: str, password: str
     ) -> bool:
         verification = credentials.check_credentials(url, login, password)
         if verification:

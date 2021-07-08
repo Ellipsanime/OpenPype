@@ -39,10 +39,7 @@ class ShotgridTrayWrapper:
             return True
 
         cred = credentials.get_credentials(settings.get_shotgrid_url())
-        cred_login = cred.get("login")
-        cred_password = cred.get("password")
 
-        if not cred_login and not cred_password:
+        if cred.is_empty():
             self.show_credential_dialog()
-
         return True

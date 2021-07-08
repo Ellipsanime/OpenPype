@@ -1,16 +1,18 @@
 from dataclasses import dataclass
-from typing import AnyStr
 
 
 @dataclass
 class Credentials:
-    login: AnyStr
-    password: AnyStr
+    login: str
+    password: str
+
+    def is_empty(self) -> bool:
+        return not (self.login and self.password)
 
     @staticmethod
-    def login_key_prefix() -> AnyStr:
+    def login_key_prefix() -> str:
         return "login"
 
     @staticmethod
-    def password_key_prefix() -> AnyStr:
+    def password_key_prefix() -> str:
         return "password"
