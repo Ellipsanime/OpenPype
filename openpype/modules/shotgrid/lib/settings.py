@@ -2,7 +2,7 @@ import os
 from typing import Tuple, Dict, Any
 
 from openpype.api import get_system_settings
-from openpype.modules.shotgrid.lib.const import MODULE_NAME
+from openpype_modules.shotgrid.lib.const import MODULE_NAME
 
 
 def get_shotgrid_settings() -> Dict[str, Any]:

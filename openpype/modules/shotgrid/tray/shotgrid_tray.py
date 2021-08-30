@@ -1,8 +1,9 @@
 from typing import Any
 
-from openpype.modules.shotgrid.tray.credential_dialog import CredentialsDialog
-from openpype.modules.shotgrid.lib import credentials
-from openpype.modules.shotgrid.lib import settings
+from openpype.modules.default_modules.shotgrid.tray.credential_dialog import (
+    CredentialsDialog,
+)
+from openpype.modules.default_modules.shotgrid.lib import credentials, settings
 
 from Qt import QtWidgets
 
@@ -28,7 +29,6 @@ class ShotgridTrayWrapper:
         show_connect_action = QtWidgets.QAction("Connect to Shotgrid", menu)
         show_connect_action.triggered.connect(self.show_connect_dialog)
         menu.addAction(show_connect_action)
-
         tray_menu.addMenu(menu)
 
     def validate(self) -> bool:
