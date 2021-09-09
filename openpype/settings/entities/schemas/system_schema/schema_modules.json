@@ -60,6 +60,16 @@
                     "type": "text",
                     "key": "shotgrid_url",
                     "label": "Server URL"
+                },
+                {
+                    "type": "text",
+                    "key": "shotgrid_script_name",
+                    "label": "Script Name"
+                },
+                {
+                    "type": "text",
+                    "key": "shotgrid_script_key",
+                    "label": "Script Key"
                 }
             ]
         },

@@ -1,0 +1,30 @@
+{
+    "shotgrid_project_id": 0,
+    "auth": {
+        "project_shotgrid_url": "",
+        "project_shotgrid_script_name": "",
+        "project_shotgrid_script_key": ""
+    },
+    "batch": {
+        "enabled": false,
+        "override": false
+    },
+    "event": {
+        "enabled": false
+    },
+    "fields": {
+        "asset": {
+            "type": "sg_asset_type"
+        },
+        "sequence": {
+            "episode_link": "episode"
+        },
+        "shot": {
+            "episode_link": "sg_episode",
+            "sequence_link": "sg_sequence"
+        },
+        "task": {
+            "step": "step"
+        }
+    }
+}
