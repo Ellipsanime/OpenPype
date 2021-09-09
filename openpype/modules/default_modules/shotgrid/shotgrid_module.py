@@ -1,21 +1,25 @@
 import os
 from typing import Optional, Dict, Any
-from openpype.modules.shotgrid.lib import credentials
-from openpype.modules.shotgrid.lib import settings
+from openpype.modules.default_modules.shotgrid.lib import settings, credentials
 import shotgun_api3
 
-from openpype.modules import (
-    PypeModule,
+from openpype.modules import OpenPypeModule
+
+from openpype_interfaces import (
     ITrayModule,
     IPluginPaths,
     ILaunchHookPaths,
 )
-from openpype.modules.shotgrid.tray.shotgrid_tray import ShotgridTrayWrapper
+from openpype.modules.default_modules.shotgrid.tray.shotgrid_tray import (
+    ShotgridTrayWrapper,
+)
 
 SHOTGRID_MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class ShotgridModule(PypeModule, ITrayModule, IPluginPaths, ILaunchHookPaths):
+class ShotgridModule(
+    OpenPypeModule, ITrayModule, IPluginPaths, ILaunchHookPaths
+):
     name: str = "shotgrid"
     enabled: bool = False
     project_id: Optional[str] = None

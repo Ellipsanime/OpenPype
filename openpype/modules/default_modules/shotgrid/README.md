@@ -2,7 +2,7 @@
 
 ### First steps
 
-At the beginning you have to create a working environment, you can achieve it with bootstrap scripts from `tools` folder. Just follow the tutorial from the main `README.md` [file](../../../README.md).
+At the beginning you have to create a working environment, you can achieve it with bootstrap scripts from `tools` folder. Just follow the tutorial from the main `README.md` [file](../../../../README.md).
 
 ### Hooks
 

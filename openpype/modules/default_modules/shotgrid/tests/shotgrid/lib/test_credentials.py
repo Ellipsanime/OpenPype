@@ -1,7 +1,7 @@
 import pytest
 from assertpy import assert_that
 
-import openpype.modules.shotgrid.lib.credentials as sut
+import openpype.modules.default_modules.shotgrid.lib.credentials as sut
 
 
 def test_missing_shotgrid_url():

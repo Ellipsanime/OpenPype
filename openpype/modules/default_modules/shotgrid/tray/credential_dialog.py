@@ -3,8 +3,7 @@ from Qt import QtCore, QtWidgets, QtGui
 
 from openpype import style
 from openpype import resources
-from openpype.modules.shotgrid.lib import credentials
-from openpype.modules.shotgrid.lib import settings
+from openpype.modules.default_modules.shotgrid.lib import settings, credentials
 
 
 class CredentialsDialog(QtWidgets.QDialog):
