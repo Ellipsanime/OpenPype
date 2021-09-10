@@ -5,10 +5,6 @@
         "project_shotgrid_script_name": "",
         "project_shotgrid_script_key": ""
     },
-    "batch": {
-        "enabled": false,
-        "override": false
-    },
     "event": {
         "enabled": false
     },

@@ -39,25 +39,6 @@
         },
         {
             "type": "dict",
-            "key": "batch",
-            "label": "Batch",
-            "collapsible": true,
-            "checkbox_key": "enabled",
-            "children": [
-                {
-                    "type": "boolean",
-                    "key": "enabled",
-                    "label": "Enabled"
-                },
-                {
-                    "type": "boolean",
-                    "key": "override",
-                    "label": "Override existing project"
-                }
-            ]
-        },
-        {
-            "type": "dict",
             "key": "event",
             "label": "Event Handler",
             "collapsible": true,

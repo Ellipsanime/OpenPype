@@ -58,18 +58,23 @@
                 },
                 {
                     "type": "text",
+                    "key": "module_server_url",
+                    "label": "Module Server URL"
+                },
+                {
+                    "type": "text",
                     "key": "shotgrid_url",
-                    "label": "Server URL"
+                    "label": "Shotgrid Server URL"
                 },
                 {
                     "type": "text",
                     "key": "shotgrid_script_name",
-                    "label": "Script Name"
+                    "label": "Shotgrid Script Name"
                 },
                 {
                     "type": "text",
                     "key": "shotgrid_script_key",
-                    "label": "Script Key"
+                    "label": "Shotgrid Script Key"
                 }
             ]
         },
