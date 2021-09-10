@@ -125,9 +125,10 @@ class BatchDialog(QtWidgets.QDialog):
             self.project_dropdown.addItem(project)
 
     def _on_shotgrid_batch_clicked(self):
-        if self.project_settings:
+        project = self.project_dropdown.currentText()
+        if project and self.project_settings:
             res = server.send_batch_request(
-                self.project_settings, self.override.isChecked()
+                project, self.project_settings, self.override.isChecked()
             )
 
             if res != 200:
@@ -158,7 +159,7 @@ class BatchDialog(QtWidgets.QDialog):
         )
 
         if (
-            self._check_selected_project_settings(project_settings)
+            self._check_selected_project_settings(project, project_settings)
             and self._check_server_status()
         ):
             self.project_settings = project_settings
@@ -192,8 +193,10 @@ class BatchDialog(QtWidgets.QDialog):
     def _close_widget(self):
         self.hide()
 
-    def _check_selected_project_settings(self, settings: Dict[str, Any]):
-        if not server.check_batch_settings(settings):
+    def _check_selected_project_settings(
+        self, project: str, settings: Dict[str, Any]
+    ):
+        if not server.check_batch_settings(project, settings):
             self.set_error("Can't access shotgrid project with those settings")
             return False
         return True
