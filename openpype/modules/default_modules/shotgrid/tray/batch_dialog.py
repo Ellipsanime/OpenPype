@@ -37,7 +37,7 @@ class BatchDialog(QtWidgets.QDialog):
 
         self.setWindowTitle("OpenPype - Shotgrid Batch")
 
-        icon = QtGui.QIcon(resources.pype_icon_filepath())
+        icon = QtGui.QIcon(resources.get_resource("app_icons/shotgrid.png"))
         self.setWindowIcon(icon)
 
         self.setWindowFlags(
