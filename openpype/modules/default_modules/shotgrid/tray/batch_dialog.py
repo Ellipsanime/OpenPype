@@ -2,8 +2,11 @@ from typing import Dict, Any, Optional
 from Qt import QtCore, QtWidgets, QtGui
 
 from openpype import style
-from openpype import resources
 from openpype.modules.default_modules.shotgrid.lib import settings, server
+from openpype.api import Logger, resources
+
+
+log = Logger().get_logger("ShotgridModule")
 
 
 class BatchDialog(QtWidgets.QDialog):
@@ -132,9 +135,13 @@ class BatchDialog(QtWidgets.QDialog):
             )
 
             if res != 200:
-                self.set_error("Error sending batch request")
+                msg = "Error sending batch request"
+                self.set_error(msg)
+                log.error(f"{msg} for project {project}")
             else:
-                self.set_success("Batch sent")
+                msg = "Batch sent"
+                self.set_success(msg)
+                log.info(f"{msg} for project {project}")
 
     def _on_project_selection_changed(self):
         self.clear_messages()
