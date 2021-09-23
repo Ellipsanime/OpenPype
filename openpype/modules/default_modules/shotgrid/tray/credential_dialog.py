@@ -31,7 +31,7 @@ class CredentialsDialog(QtWidgets.QDialog):
 
         self.setWindowTitle("OpenPype - Shotgrid Login")
 
-        icon = QtGui.QIcon(resources.pype_icon_filepath())
+        icon = QtGui.QIcon(resources.get_openpype_icon_filepath())
         self.setWindowIcon(icon)
 
         self.setWindowFlags(
