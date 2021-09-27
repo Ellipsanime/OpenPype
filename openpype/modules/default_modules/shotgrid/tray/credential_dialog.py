@@ -115,8 +115,8 @@ class CredentialsDialog(QtWidgets.QDialog):
 
     def _fill_shotgrid_login(self):
         cred = credentials.get_credentials(settings.get_shotgrid_url())
-        login = cred.get("login")
-        password = cred.get("login")
+        login = cred.login
+        password = cred.password
 
         if login:
             self.login_input.setText(login)
