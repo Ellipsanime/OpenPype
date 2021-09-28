@@ -33,6 +33,19 @@ class CollectShotgridEntities(pyblish.api.ContextPlugin):
             self.log.info("Collected correspondig shotgrid entity : {}".format(sg_entity))
 
 
+    def _find_existing_version(self, code, context):
+
+        filters = [
+            ["project", "is", context.data.get("shotgridProject")],
+            ["sg_task", "is", context.data.get("shotgridTask")],
+            ["entity", "is", context.data.get("shotgridEntity")],
+            ["code", "is", code]
+        ]
+
+        sg = context.data.get("shotgridSession")
+        return sg.find_one("Version", filters, [])
+
+
 def _get_shotgrid_collection(project):
     mongo_url = os.getenv("OPENPYPE_MONGO")
     client = MongoClient(mongo_url)
