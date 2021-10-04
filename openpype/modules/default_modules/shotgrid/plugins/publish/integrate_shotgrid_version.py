@@ -45,7 +45,7 @@ class IntegrateShotgridVersion(pyblish.api.ContextPlugin):
             "code": code,
         }
 
-        version_data = {**version_data, **_additional_version_data(context)}
+        version_data.update(_additional_version_data(context))
 
         return self.sg.create("Version", version_data)
 

@@ -1,8 +1,9 @@
+import os
 import pyblish.api
 from urlparse import urlparse
 import shotgun_api3
 from openpype.lib import OpenPypeSecureRegistry
-from openpype.api import get_system_settings
+from openpype.api import get_project_settings
 
 
 class CollectShotgridSession(pyblish.api.ContextPlugin):
@@ -12,12 +13,18 @@ class CollectShotgridSession(pyblish.api.ContextPlugin):
     label = "Shotgrid user session"
 
     def process(self, context):
-        shotgrid_url = get_shotgrid_url()
+        avalon_project = os.getenv("AVALON_PROJECT")
+
+        shotgrid_settings = get_shotgrid_settings(avalon_project)
+        shotgrid_url = shotgrid_settings.get('auth', {}).get('project_shotgrid_url')
+        shotgrid_script_name = shotgrid_settings.get('auth', {}).get('project_shotgrid_script_name')
+        shotgrid_script_key = shotgrid_settings.get('auth', {}).get('project_shotgrid_script_key')
+
         login = get_login(shotgrid_url)
         session = shotgun_api3.Shotgun(
             base_url=shotgrid_url,
-            script_name="OpenPype",
-            api_key="1uboigwhwbcrt@edvWrnsbmds",
+            script_name=shotgrid_script_name,
+            api_key=shotgrid_script_key,
             sudo_as_login=login
         )
 
@@ -28,12 +35,8 @@ class CollectShotgridSession(pyblish.api.ContextPlugin):
         context.data['shotgridSession'] = session
 
 
-def get_shotgrid_settings():
-    return get_system_settings().get("modules", {}).get('shotgrid', {})
-
-
-def get_shotgrid_url():
-    return get_shotgrid_settings().get("shotgrid_url")
+def get_shotgrid_settings(project):
+    return get_project_settings(project).get('shotgrid', {})
 
 
 def _get_shotgrid_secure_key(hostname, key):
