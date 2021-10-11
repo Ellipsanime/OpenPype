@@ -1,9 +1,14 @@
 import os
+import sys
 import pyblish.api
-from urlparse import urlparse
 import shotgun_api3
 from openpype.lib import OpenPypeSecureRegistry
 from openpype.api import get_project_settings
+
+if sys.version_info[0] == 2:
+    from urlparse import urlparse
+else:
+    from urllib.parse import urlparse
 
 
 class CollectShotgridSession(pyblish.api.ContextPlugin):
