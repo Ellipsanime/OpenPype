@@ -34,7 +34,7 @@ def deferred():
         cmds.menuItem(
             "Build First Workfile",
             parent=pipeline._menu,
-            command=lambda *args: BuildWorkfile().process()
+            command=lambda *args: BuildWorkfileTemplate().process()
         )
 
     def add_build_template_workfiles_item():

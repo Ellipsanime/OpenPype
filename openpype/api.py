@@ -92,6 +92,7 @@ __all__ = [
     "get_default_components",
     "ApplicationManager",
     "BuildWorkfile",
+    "BuildWorkfileTemplate",
 
     # Resources
     "resources",
