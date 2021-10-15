@@ -18,6 +18,8 @@ class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
 
         version_id = context.data.get("versionEntity", {}).get("_id")
 
+        shotgrid_version = context.data.get("shotgridVersion")
+
         for representation in instance.data.get("representations"):
 
             local_path = representation.get("published_path")
@@ -29,11 +31,15 @@ class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
                 "code": code,
                 "entity": context.data.get("shotgridEntity"),
                 "task": context.data.get("shotgridTask"),
-                "version": context.data.get("shotgridVersion"),
+                "version": shotgrid_version,
                 "path": {"local_path": local_path}
             }
 
             sg_pub_file = sg.create("PublishedFile", published_file_data)
+
+            if "shotgridreview" in representation.get("tags", []):
+                self.log.info("Upload review: {} for version shotgrid {}".format(local_path, shotgrid_version.get("id")))
+                sg.upload("Version", shotgrid_version.get("id"), local_path, field_name="sg_uploaded_movie")
 
             instance.data["shotgridPublishedFile"] = sg_pub_file
             self.log.info("Created Shotgrid PublishedFile: {}".format(sg_pub_file))
