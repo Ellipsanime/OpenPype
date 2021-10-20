@@ -3,7 +3,7 @@ from typing import Tuple, Dict, List, Any
 
 from pymongo import MongoClient
 from openpype.api import get_system_settings, get_project_settings
-from openpype_modules.shotgrid.lib.const import MODULE_NAME
+from openpype.modules.default_modules.shotgrid.lib.const import MODULE_NAME
 
 
 def get_project_list() -> List[str]:

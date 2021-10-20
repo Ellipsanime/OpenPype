@@ -1,3 +1,5 @@
+import sys
+import os
 from typing import Any
 
 from openpype.modules.default_modules.shotgrid.tray.credential_dialog import (
@@ -6,9 +8,13 @@ from openpype.modules.default_modules.shotgrid.tray.credential_dialog import (
 from openpype.modules.default_modules.shotgrid.tray.batch_dialog import (
     BatchDialog,
 )
+from openpype.modules.default_modules.shotgrid.tray.manager_api import (
+    ManagerApi,
+)
 from openpype.modules.default_modules.shotgrid.lib import credentials, settings
 
 from Qt import QtWidgets
+import webview
 
 
 class ShotgridTrayWrapper:
@@ -21,7 +27,14 @@ class ShotgridTrayWrapper:
         self.batch_dialog = BatchDialog(module)
 
     def show_batch_dialog(self):
-        self.batch_dialog.show()
+        # pass
+        api = ManagerApi()
+        manager_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                    "manager/index.html")
+        webview.create_window('Shotgrid Manager', url=manager_path,
+                              js_api=api, min_size=(790, 500))
+        webview.start(gui='cef', debug=False)
+
 
     def show_connect_dialog(self):
         self.show_credential_dialog()

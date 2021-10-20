@@ -5,7 +5,7 @@ import shotgun_api3
 from shotgun_api3.shotgun import AuthenticationFault
 
 from openpype.lib import OpenPypeSecureRegistry
-from openpype_modules.shotgrid.lib.record import Credentials
+from openpype.modules.default_modules.shotgrid.lib.record import Credentials
 
 
 def _get_shotgrid_secure_key(hostname: str, key: str) -> str:

@@ -1,6 +1,6 @@
 import requests
 from typing import Dict
-from openpype_modules.shotgrid.lib import settings as settings_lib
+from openpype.modules.default_modules.shotgrid.lib import settings as settings_lib
 
 
 def _format_url(url: str) -> str:
