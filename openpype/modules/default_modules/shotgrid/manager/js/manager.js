@@ -1,6 +1,11 @@
 window.addEventListener('pywebviewready', () => {
     console.log('pywebview ready');
     window.pywebview.api.getProjectList().then(fillProjectsSelector);
+    window.pywebview.api.checkServerStatus().then((result) => {
+        if (!result) {
+            printError("Shotgrid module API unreachable");
+        }
+    });
 })
 
 window.addEventListener('load', (event) => {
@@ -13,34 +18,37 @@ window.addEventListener('load', (event) => {
 /* Event functions */
 
 function onBatchSelectorChange(event) {
-    batchWorking();
+
     project = event.target.options[event.target.selectedIndex].value;
     $("#shotgridUrl, #shotgridScriptName, #shotgridApiKey, #shotgridProjectId, #shotgridFieldMapping").val("");
 
     if (project != "#new") {
+        batchWorking();
         window.pywebview.api.getProjectBatchInfos(project).then((infos) => {
             $("#shotgridUrl").val(infos.url);
             $("#shotgridScriptName").val(infos.script_name);
             $("#shotgridApiKey").val(infos.api_key);
             $("#shotgridProjectId").val(infos.project_id);
             $("#shotgridFieldMapping").val(JSON.stringify(infos.fields_mapping, null, 5));
-        });
+        }).then(batchEndWorking);
     }
-    batchEndWorking();
 }
 
 function onBatchSubmit(event) {
     batchWorking();
 
-    if (checkBatchValues()) {
-        console.log('OK');
-    } else {
-        console.log('KO');
-        printWarning("Could not run batch with those settings");
-
-    }
-
-    batchEndWorking();
+    checkBatchValues().then(() => {
+        SendBatch().then(() => {
+            printInfo("Batch sent successfully");
+            batchEndWorking();
+        }).catch((error) => {
+            printWarning(error);
+            batchEndWorking();
+        });
+    }).catch(error => {
+        printWarning(error);
+        batchEndWorking();
+    });
 }
 
 /* Functions */
@@ -60,20 +68,62 @@ function fillProjectsSelector(projectList) {
 }
 
 function checkBatchValues() {
+    infos = getBatchInfos();
+    return new Promise((success, failure) => {
+        window.pywebview.api.checkProjectSettings(
+            infos['project'],
+            infos['url'],
+            infos['script_name'],
+            infos['api_key'],
+            infos['project_id'],
+        ).then((result) => {
+            if (result){
+                success();
+            } else {
+                failure("Could not run batch with those settings");
+            }
+        });
+    })
+}
 
-    val = {
+function SendBatch() {
+    infos = getBatchInfos();
+    return new Promise((success, failure) => {
+        var fieldsMapping;
+        try {
+            fieldsMapping = JSON.parse(infos['fields_mapping']);
+        } catch(e) {
+            failure("fields_mapping field contained malformed json");
+        }
+        window.pywebview.api.sendBatch(
+            infos['project'],
+            infos['url'],
+            infos['script_name'],
+            infos['api_key'],
+            infos['project_id'],
+            fieldsMapping
+        ).then((result) => {
+            if (result){
+                success();
+            } else {
+                failure();
+            }
+        });
+    })
+}
+
+/* util */
+
+function getBatchInfos() {
+    return {
         'project': $("#selectOpenPypeProject").val(),
         'url': $("#shotgridUrl").val(),
         'script_name': $("#shotgridScriptName").val(),
         'api_key': $("#shotgridApiKey").val(),
         'project_id': $("#shotgridProjectId").val(),
+        'fields_mapping': $("#shotgridFieldMapping").val(),
     }
-    window.pywebview.api.checkProjectSettings(val).then((result) => {
-        return result
-    });
 }
-
-/* util */
 
 function batchWorking() {
     spinner = document.createElement("span");
@@ -94,7 +144,7 @@ function printWarning(msg) {
 }
 
 function printError(msg) {
-    printMsg('critical', msg)
+    printMsg('danger', msg)
 }
 
 function printInfo(msg) {

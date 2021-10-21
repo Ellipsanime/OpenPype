@@ -1,10 +1,12 @@
 import requests
-from typing import Dict
-from openpype.modules.default_modules.shotgrid.lib import settings as settings_lib
+from typing import Dict, Any
+from openpype.modules.default_modules.shotgrid.lib import (
+    settings as settings_lib,
+)
 
 
 def _format_url(url: str) -> str:
-    if not url.startswith('http://') or not url.startswith('https://'):
+    if not url.startswith("http://") or not url.startswith("https://"):
         return "http://" + url
     return url
 
@@ -19,22 +21,20 @@ def poll_server() -> int:
     return res.status_code
 
 
-def check_batch_settings(project: str, settings: Dict[str, any]) -> bool:
+def check_batch_settings(
+    project: str, url: str, script_name: str, api_key: str, project_id: int
+) -> bool:
     module_url = _format_url(settings_lib.get_module_server_url())
-    url = "/".join([module_url, "batch", project, "check"])
+    api_url = "/".join([module_url, "batch", project, "check"])
     params = {
-        "shotgrid_url": settings.get("auth", {}).get("project_shotgrid_url"),
-        "shotgrid_project_id": settings.get("shotgrid_project_id"),
-        "script_name": settings.get("auth", {}).get(
-            "project_shotgrid_script_name"
-        ),
-        "script_key": settings.get("auth", {}).get(
-            "project_shotgrid_script_key"
-        ),
+        "shotgrid_url": url,
+        "shotgrid_project_id": project_id,
+        "script_name": script_name,
+        "script_key": api_key,
     }
 
     try:
-        res = requests.get(url, params=params)
+        res = requests.get(api_url, params=params)
     except requests.exceptions.RequestException:
         return False
 
@@ -45,26 +45,28 @@ def check_batch_settings(project: str, settings: Dict[str, any]) -> bool:
 
 
 def send_batch_request(
-    project: str, settings: Dict[str, any], override: bool
+    project: str,
+    url: str,
+    script_name: str,
+    api_key: str,
+    project_id: int,
+    fields_mapping: Dict[str, Any],
+    override: bool = False,
 ) -> int:
 
     module_url = _format_url(settings_lib.get_module_server_url())
-    url = "/".join([module_url, "batch", project])
+    api_url = "/".join([module_url, "batch", project])
     payload = {
-        "shotgrid_url": settings.get("auth", {}).get("project_shotgrid_url"),
-        "shotgrid_project_id": settings.get("shotgrid_project_id"),
-        "script_name": settings.get("auth", {}).get(
-            "project_shotgrid_script_name"
-        ),
-        "script_key": settings.get("auth", {}).get(
-            "project_shotgrid_script_key"
-        ),
+        "shotgrid_url": url,
+        "shotgrid_project_id": project_id,
+        "script_name": script_name,
+        "script_key": api_key,
         "overwrite": override,
-        "fields_mapping": settings.get("fields", {}),
+        "fields_mapping": fields_mapping,
     }
 
     try:
-        res = requests.post(url, json=payload)
+        res = requests.post(api_url, json=payload)
     except requests.exceptions.RequestException:
         return 404
 
