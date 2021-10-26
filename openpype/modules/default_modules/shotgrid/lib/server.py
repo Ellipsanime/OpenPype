@@ -1,3 +1,5 @@
+import traceback
+
 import requests
 from typing import Dict, Any
 from openpype.modules.default_modules.shotgrid.lib import (
@@ -22,10 +24,11 @@ def poll_server() -> int:
 
 
 def check_batch_settings(
-    project: str, url: str, script_name: str, api_key: str, project_id: int
+    url: str, script_name: str, api_key: str, project_id: int
 ) -> bool:
     module_url = _format_url(settings_lib.get_module_server_url())
-    api_url = "/".join([module_url, "batch", project, "check"])
+    api_url = "/".join([module_url, "batch", "check"])
+    print(api_url)
     params = {
         "shotgrid_url": url,
         "shotgrid_project_id": project_id,
@@ -35,13 +38,9 @@ def check_batch_settings(
 
     try:
         res = requests.get(api_url, params=params)
+        return {"status_code": res.status_code, "payload": res.json()}
     except requests.exceptions.RequestException:
-        return False
-
-    if res.status_code == 200:
-        return res.json().get("status", "KO") == "OK"
-    else:
-        return False
+        traceback.print_stack()
 
 
 def send_batch_request(
@@ -67,7 +66,6 @@ def send_batch_request(
 
     try:
         res = requests.post(api_url, json=payload)
-    except requests.exceptions.RequestException:
-        return 404
-
-    return res.status_code
+        return {"status_code": res.status_code, "payload": res.json()}
+    except requests.exceptions.RequestException as e:
+        traceback.print_stack()

@@ -1,18 +1,29 @@
-window.addEventListener('pywebviewready', () => {
-    console.log('pywebview ready');
-    window.pywebview.api.getProjectList().then(fillProjectsSelector);
-    window.pywebview.api.checkServerStatus().then((result) => {
-        if (!result) {
-            printError("Shotgrid module API unreachable");
+// Check Form validity before Submit
+(function () {
+  'use strict'
+
+  // Fetch all the forms we want to apply custom Bootstrap validation styles to
+  var forms = document.querySelectorAll('.needs-validation')
+
+  // Loop over them and prevent submission
+  Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
         }
-    });
-})
+        onBatchSubmit(event);
+        form.classList.add('was-validated')
+      }, false)
+    })
+})()
+
+window.addEventListener('pywebviewready', initializeInterface)
 
 window.addEventListener('load', (event) => {
     batchSelector = document.getElementById('selectOpenPypeProject');
     batchSelector.addEventListener("change", onBatchSelectorChange);
-
-    $("#batchBtn").click(onBatchSubmit);
 });
 
 /* Event functions */
@@ -22,7 +33,7 @@ function onBatchSelectorChange(event) {
     project = event.target.options[event.target.selectedIndex].value;
     $("#shotgridUrl, #shotgridScriptName, #shotgridApiKey, #shotgridProjectId, #shotgridFieldMapping").val("");
 
-    if (project != "#new") {
+    if (project != "newproject") {
         batchWorking();
         window.pywebview.api.getProjectBatchInfos(project).then((infos) => {
             $("#shotgridUrl").val(infos.url);
@@ -36,27 +47,40 @@ function onBatchSelectorChange(event) {
 
 function onBatchSubmit(event) {
     batchWorking();
-
-    checkBatchValues().then(() => {
-        SendBatch().then(() => {
+    checkBatchValues().then((project_name) => {
+        SendBatch(project_name).then(() => {
             printInfo("Batch sent successfully");
             batchEndWorking();
+            event.stopPropagation()
         }).catch((error) => {
             printWarning(error);
             batchEndWorking();
+            event.stopPropagation()
         });
     }).catch(error => {
         printWarning(error);
         batchEndWorking();
+        event.stopPropagation()
     });
 }
 
 /* Functions */
 
+function initializeInterface() {
+    console.log('Initialize interface');
+    window.pywebview.api.getProjectList().then(fillProjectsSelector);
+    window.pywebview.api.checkServerStatus().then((result) => {
+        if (!result) {
+            printError("Shotgrid module API unreachable");
+        }
+    });
+    window.removeEventListener('pywebviewready', initializeInterface);
+}
+
 function fillProjectsSelector(projectList) {
     batchSelector = document.getElementById('selectOpenPypeProject');
     ScheduleSelector = document.getElementById('selectOpenPypeProjectSchedule');
-
+    batchSelector.innerHTML = "<option value=\"newproject\">new project</option>";
     projectList.forEach(function(project){
         var el = document.createElement("option");
         el.innerHTML = project;
@@ -71,14 +95,14 @@ function checkBatchValues() {
     infos = getBatchInfos();
     return new Promise((success, failure) => {
         window.pywebview.api.checkProjectSettings(
-            infos['project'],
             infos['url'],
             infos['script_name'],
             infos['api_key'],
             infos['project_id'],
         ).then((result) => {
-            if (result){
-                success();
+            console.log(result);
+            if (result["status_code"] == "200"){
+                success(result["payload"]["status"]);
             } else {
                 failure("Could not run batch with those settings");
             }
@@ -86,27 +110,34 @@ function checkBatchValues() {
     })
 }
 
-function SendBatch() {
+function SendBatch(projectName) {
     infos = getBatchInfos();
+    newProject = (infos['project'] == "newproject")
+    if (!newProject) {
+        projectName = infos['project']
+    }
     return new Promise((success, failure) => {
         var fieldsMapping;
         try {
             fieldsMapping = JSON.parse(infos['fields_mapping']);
         } catch(e) {
             failure("fields_mapping field contained malformed json");
+            return;
         }
         window.pywebview.api.sendBatch(
-            infos['project'],
+            newProject,
+            projectName,
             infos['url'],
             infos['script_name'],
             infos['api_key'],
             infos['project_id'],
             fieldsMapping
         ).then((result) => {
-            if (result){
+            console.log(result);
+            if (result['status_code'] == 200){
                 success();
             } else {
-                failure();
+                failure(result['payload']['detail']);
             }
         });
     })
@@ -130,12 +161,12 @@ function batchWorking() {
     spinner.setAttribute('class', "spinner-border spinner-border-sm");
     spinner.setAttribute('role', "status");
     spinner.setAttribute('aria-hidden', "true");
-    $("#batchBtn").attr("disabled");
+    $("#batchBtn").addClass("disabled");
     $("#batchBtn").html(spinner);
 }
 
 function batchEndWorking() {
-    $("#batchBtn").attr("enabled");
+    $("#batchBtn").removeClass("disabled");
     $("#batchBtn").html("Batch");
 }
 

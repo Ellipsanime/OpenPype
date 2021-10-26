@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
 
+    <link rel="icon" href="../../../../resources/app_icons/favicon.png">
 
     <title>Shotgrid Manager</title>
 </head>
@@ -28,18 +29,19 @@
         <!-- Batch Tab -->
         <div class="tab-pane fade show active" id="nav-batch" role="tabpanel" aria-labelledby="nav-batch-tab">
             <div class="container">
-                <form class="" id="batchForm">
+
                     <div class="mb-3 row">
                         <label for="selectOpenPypeProject" class="col-sm-3 col-form-label">OpenPype project</label>
                         <div class="col-sm-4">
                             <select class="form-control form-control-sm" id="selectOpenPypeProject">
-                                <option value="#new">new project</option>
+                                <option value="newproject">new project</option>
                             </select>
                         </div>
                         <button type="button" class="col-sm-1 btn btn-sm btn-primary" id="reloadBatchConf">
                             reload
                         </button>
                     </div>
+                <form action="#" class="needs-validation" id="batchForm" novalidate>
                     <div class="form-group row">
                         <label for="shotgridUrl" class="col-sm-2 col-form-label">url</label>
                         <div class="col-sm-6">
@@ -81,7 +83,7 @@
                     <div class="footer">
                         <div class="float-left" id="infoPanel"></div>
                         <div class="float-right">
-                            <button type="button" class="btn btn-primary" id="batchBtn">Batch</button>
+                            <button type="submit" class="btn btn-primary" id="batchBtn">Batch</button>
                         </div>
                     </div>
                 </form>

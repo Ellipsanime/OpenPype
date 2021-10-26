@@ -1,11 +1,11 @@
 from typing import Dict, Any
 from openpype.modules.default_modules.shotgrid.lib import settings, server
+from openpype.lib import create_project
 
 
-class ManagerApi():
+class ManagerApi:
 
     def getProjectList(self):
-        print("get project list")
         return settings.get_project_list()
 
     def getProjectBatchInfos(self, project):
@@ -28,21 +28,20 @@ class ManagerApi():
 
     def checkProjectSettings(
         self,
-        project: str,
         url: str,
         script_name: str,
         api_key: str,
         project_id: int,
     ):
-        print("Check project ", project)
-        if not server.check_batch_settings(
-            project, url, script_name, api_key, project_id
-        ):
-            return False
-        return True
+        print("Check project ", url, script_name, api_key, project_id)
+        res = server.check_batch_settings(
+            url, script_name, api_key, project_id
+        )
+        return res
 
     def sendBatch(
         self,
+        new_project: bool,
         project: str,
         url: str,
         script_name: str,
@@ -50,7 +49,13 @@ class ManagerApi():
         project_id: int,
         fields_mapping: Dict[str, Any],
     ):
+        print("Send Batch ", project, url, script_name, api_key, project_id)
+
+        if new_project:
+            print("Create project")
+            create_project(project, project)
+
         res = server.send_batch_request(
             project, url, script_name, api_key, project_id, fields_mapping
         )
-        return res == 200
+        return res
