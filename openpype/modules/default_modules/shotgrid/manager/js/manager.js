@@ -48,7 +48,9 @@ function onBatchSelectorChange(event) {
 function onBatchSubmit(event) {
     batchWorking();
     checkBatchValues().then((project_name) => {
+        console.log("check OK")
         SendBatch(project_name).then(() => {
+            console.log("batch OK")
             printInfo("Batch sent successfully");
             batchEndWorking();
             event.stopPropagation()
@@ -93,6 +95,7 @@ function fillProjectsSelector(projectList) {
 
 function checkBatchValues() {
     infos = getBatchInfos();
+    console.log("check batch")
     return new Promise((success, failure) => {
         window.pywebview.api.checkProjectSettings(
             infos['url'],
@@ -116,6 +119,7 @@ function SendBatch(projectName) {
     if (!newProject) {
         projectName = infos['project']
     }
+    console.log("send batch")
     return new Promise((success, failure) => {
         var fieldsMapping;
         try {

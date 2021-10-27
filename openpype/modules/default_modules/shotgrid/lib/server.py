@@ -28,7 +28,6 @@ def check_batch_settings(
 ) -> bool:
     module_url = _format_url(settings_lib.get_module_server_url())
     api_url = "/".join([module_url, "batch", "check"])
-    print(api_url)
     params = {
         "shotgrid_url": url,
         "shotgrid_project_id": project_id,
