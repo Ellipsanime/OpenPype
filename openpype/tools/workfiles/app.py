@@ -74,6 +74,7 @@ class NameWindow(QtWidgets.QDialog):
             "name": asset_name
         })
 
+
         task_type = asset_doc["data"]["tasks"].get(
             session["AVALON_TASK"], {}).get("type")
 
@@ -83,17 +84,25 @@ class NameWindow(QtWidgets.QDialog):
         else:
             task_short = None
 
+        parent = project_doc["name"]
+        if len(asset_doc["data"]["parents"]) != 0:
+            parent = asset_doc["data"]["parents"][-1]
+
+
         self.data = {
             "project": {
                 "name": project_doc["name"],
                 "code": project_doc["data"].get("code")
             },
             "asset": asset_name,
+
             "task": {
                 "name": session["AVALON_TASK"],
                 "type": task_type,
                 "short": task_short,
             },
+
+            "parent": parent,
             "version": 1,
             "user": getpass.getuser(),
             "comment": "",

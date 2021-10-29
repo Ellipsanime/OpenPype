@@ -54,12 +54,17 @@ class CollectAnatomyContextData(pyblish.api.ContextPlugin):
         if hierarchy_items:
             hierarchy = os.path.join(*hierarchy_items)
 
+        parent = project_entity["name"]
+        if len(asset_entity["data"]["parents"]) != 0:
+            parent = asset_entity["data"]["parents"][-1]
+
         context_data = {
             "project": {
                 "name": project_entity["name"],
                 "code": project_entity["data"].get("code")
             },
             "asset": asset_entity["name"],
+            "parent": parent,
             "hierarchy": hierarchy.replace("\\", "/"),
             "task": task_name,
             "username": context.data["user"],
