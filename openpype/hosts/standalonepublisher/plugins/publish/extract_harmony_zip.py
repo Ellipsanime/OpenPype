@@ -220,6 +220,10 @@ class ExtractHarmonyZip(openpype.api.Extractor):
         anatomy = openpype.api.Anatomy()
         project_entity = instance.context.data["projectEntity"]
 
+        parent = project_entity["name"]
+        if len(instance.data["asset"]["data"]["parents"]) != 0:
+            parent = instance.data["asset"]["data"]["parents"][-1]
+
         data = {
             "root": api.registered_root(),
             "project": {
@@ -227,6 +231,7 @@ class ExtractHarmonyZip(openpype.api.Extractor):
                 "code": project_entity["data"].get("code", '')
             },
             "asset": instance.data["asset"],
+            "parent": parent,
             "hierarchy": openpype.api.get_hierarchy(instance.data["asset"]),
             "family": instance.data["family"],
             "task": instance.data.get("task"),

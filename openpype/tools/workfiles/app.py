@@ -68,12 +68,22 @@ class NameWindow(QtWidgets.QDialog):
                 "data.code": True
             }
         )
+        asset_doc = io.find_one({
+            "type": "asset",
+            "name": asset_name
+        })
+
+        parent = project_doc["name"]
+        if len(asset_doc["data"]["parents"]) != 0:
+            parent = asset_doc["data"]["parents"][-1]
+
         self.data = {
             "project": {
                 "name": project_doc["name"],
                 "code": project_doc["data"].get("code")
             },
             "asset": asset_name,
+            "parent": parent,
             "task": session["AVALON_TASK"],
             "version": 1,
             "user": getpass.getuser(),
