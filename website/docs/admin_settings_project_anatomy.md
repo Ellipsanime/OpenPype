@@ -57,6 +57,7 @@ We have a few required anatomy templates for OpenPype to work properly, however 
 | `project[code]` | Project's code |
 | `hierarchy` | All hierarchical parents as subfolders |
 | `asset` | Name of asset or shot |
+| `parent` | Name of parent folder |
 | `task` | Name of task |
 | `version` | Version number |
 | `subset` | Subset name |
