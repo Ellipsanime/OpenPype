@@ -47,30 +47,30 @@ class ShotgridTrayWrapper:
 
     def tray_menu(self, tray_menu):
         # Add login to user menu
-        menu = QtWidgets.QMenu("Shotgrid", tray_menu)
-        show_connect_action = QtWidgets.QAction("Connect to Shotgrid", menu)
-        show_connect_action.triggered.connect(self.show_connect_dialog)
-        menu.addAction(show_connect_action)
-        tray_menu.addMenu(menu)
+        # menu = QtWidgets.QMenu("Shotgrid", tray_menu)
+        # show_connect_action = QtWidgets.QAction("Connect to Shotgrid", menu)
+        # show_connect_action.triggered.connect(self.show_connect_dialog)
+        # menu.addAction(show_connect_action)
+        # tray_menu.addMenu(menu)
 
         # Add manager to Admin menu
         for m in tray_menu.findChildren(QtWidgets.QMenu):
             if m.title() == "Admin":
                 shotgrid_manager_action = QtWidgets.QAction("Shotgrid manager",
-                                                            menu)
+                                                            tray_menu)
                 shotgrid_manager_action.triggered.connect(
                     self.show_batch_dialog)
                 m.addAction(shotgrid_manager_action)
 
     def validate(self) -> bool:
-        shotgrid_url = settings.get_shotgrid_url()
-
-        if not shotgrid_url:
-            self.show_credential_dialog()
-            return True
-
-        cred = credentials.get_credentials(settings.get_shotgrid_url())
-
-        if cred.is_empty():
-            self.show_credential_dialog()
+        # shotgrid_url = settings.get_shotgrid_url()
+        #
+        # if not shotgrid_url:
+        #     self.show_credential_dialog()
+        #     return True
+        #
+        # cred = credentials.get_credentials(settings.get_shotgrid_url())
+        #
+        # if cred.is_empty():
+        #     self.show_credential_dialog()
         return True
