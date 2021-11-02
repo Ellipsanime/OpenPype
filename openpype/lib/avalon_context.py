@@ -486,6 +486,7 @@ def get_workdir_data(project_doc, asset_doc, task_name, host_name):
         task_code = project_doc['config']['tasks'][task_type]['short_name']
     else:
         task_code = None
+
     parent = project_doc["name"]
     if len(asset_doc["data"]["parents"]) != 0:
         parent = asset_doc["data"]["parents"][-1]
