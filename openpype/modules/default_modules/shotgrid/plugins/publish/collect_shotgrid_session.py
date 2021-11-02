@@ -25,7 +25,7 @@ class CollectShotgridSession(pyblish.api.ContextPlugin):
         shotgrid_script_name = shotgrid_settings.get('auth', {}).get('project_shotgrid_script_name')
         shotgrid_script_key = shotgrid_settings.get('auth', {}).get('project_shotgrid_script_key')
 
-        login = "rd.ellipsanime" #get_login(shotgrid_url)
+        login = "rd.admin@ellipsanime.net" #get_login(shotgrid_url)
         session = shotgun_api3.Shotgun(
             base_url=shotgrid_url,
             script_name=shotgrid_script_name,
