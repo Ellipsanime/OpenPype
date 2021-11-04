@@ -1,0 +1,80 @@
+# SANITY CHECKS MAPPING
+#
+# Liste des expressions regulières à comparer aux noms des fichiers (maya, nuke, etc.)
+# pour définir quels "sanity checks" leur appliquer avant qu'ils soient publiés.
+# Les expressions, ainsi que la liste de "sanity checks" qu'elles incluent sont évaluées
+# dans l'ordre dans lequel elles sont renseignées.
+
+
+_(std|mdl|stp|modeling|shd)__    check_unknown_nodes
+    check_unknown_plugins
+    check_turtle
+    check_anim_layers
+    check_duplicate_names
+
+
+_(std|mdl|modeling|shd)_
+    check_namespaces
+    check_unwanted_groups
+    check_prod_root
+    check_mdl_hierarchy
+    check_mesh_history
+    check_topo_ngons
+    check_topo_lamina
+    check_topo_non_manifolds
+    check_topo_0len_edges
+    check_topo_concaves
+    check_no_intermediates
+    check_keys
+
+
+# mdl des props et persos
+^(prp|chr)_.*__mdl__
+    check_only_lambert
+    check_transforms
+
+
+# shd des props et persos
+^(prp|chr)_.*__shd__
+    check_mesh_blendshapes
+    check_transforms
+    check_stp_vs_shd_conformation
+
+
+# les environnements (tache std, ils n'ont que celle-ci)
+^env_.*__std__
+    check_stc_versions
+    check_geo_grp_at_zero
+
+
+# les statics (tache mdl, ils n'ont que celle-ci)
+^stc_.*__mdl__
+    check_rs_subdivs
+    check_transforms
+
+
+# TEST ASSET
+^chr_TestChara__mdl__
+    check_prod_root
+    check_unknown_nodes
+    check_unknown_plugins
+    check_turtle
+    check_mdl_hierarchy
+    check_namespaces
+    check_topo_ngons
+    check_topo_lamina
+    check_topo_holes
+    check_topo_non_manifolds
+    check_topo_0len_edges
+    check_topo_concaves
+    check_stp_vs_shd_topology
+    check_stp_vs_shd_hierarchy
+    check_mesh_history
+    check_mesh_blendshapes
+    check_mesh_visibility
+    check_stray_keys
+    check_stray_transformations
+    check_rs_subdivs
+    check_stc_versions
+    check_render_stats
+    check_test
