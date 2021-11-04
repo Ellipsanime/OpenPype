@@ -67,7 +67,6 @@ class CollectAnatomyContextData(pyblish.api.ContextPlugin):
         if len(asset_entity["data"]["parents"]) != 0:
             parent = asset_entity["data"]["parents"][-1]
 
-
         context_data = {
             "project": {
                 "name": project_entity["name"],
