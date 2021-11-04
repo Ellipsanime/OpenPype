@@ -46,6 +46,40 @@
         },
         {
             "type": "dict",
+            "key": "shotgrid",
+            "label": "Shotgrid",
+            "collapsible": true,
+            "checkbox_key": "enabled",
+            "children": [
+                {
+                    "type": "boolean",
+                    "key": "enabled",
+                    "label": "Enabled"
+                },
+                {
+                    "type": "text",
+                    "key": "module_server_url",
+                    "label": "Module Server URL"
+                },
+                {
+                    "type": "text",
+                    "key": "shotgrid_url",
+                    "label": "Shotgrid Server URL"
+                },
+                {
+                    "type": "text",
+                    "key": "shotgrid_script_name",
+                    "label": "Shotgrid Script Name"
+                },
+                {
+                    "type": "text",
+                    "key": "shotgrid_script_key",
+                    "label": "Shotgrid Script Key"
+                }
+            ]
+        },
+        {
+            "type": "dict",
             "key": "timers_manager",
             "label": "Timers Manager",
             "collapsible": true,
