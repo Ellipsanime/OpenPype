@@ -25,6 +25,7 @@ from .view import FilesView
 
 from openpype.lib import (
     Anatomy,
+    get_master_task,
     get_workdir,
     get_workfile_doc,
     create_workfile_doc,
@@ -550,7 +551,7 @@ class FilesWidget(QtWidgets.QWidget):
 
     def set_asset_task(self, asset, task_name, task_type):
         self._asset = asset
-        self._task_name = task_name
+        self._task_name = get_master_task(asset, task_name)
         self._task_type = task_type
 
         # Define a custom session so we can query the work root

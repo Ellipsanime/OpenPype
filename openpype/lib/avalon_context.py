@@ -346,6 +346,31 @@ def get_latest_version(asset_name, subset_name, dbcon=None, project_name=None):
     return version_doc
 
 
+def get_master_task(asset_doc, task_name):
+    """Retrieve master_task from avalon asset requested task
+
+    Return the master task if there is one, return the task otherwise.
+
+    Args:
+        asset_doc (dict): Document of asset under which the task belongs.
+        task_name (str): Name of task to retrieve master_task from.
+
+    Returns:
+        str: master task name if there is one, task name otherwise.
+    """
+
+    if asset_doc:
+        master_task = (
+            asset_doc.get("data", {})
+            .get("tasks", {})
+            .get(task_name, {})
+            .get("master_task", None)
+        )
+        if master_task:
+            return master_task
+    return task_name
+
+
 def get_workfile_template_key_from_context(
     asset_name, task_name, host_name, project_name=None,
     dbcon=None, project_settings=None
@@ -480,6 +505,9 @@ def get_workdir_data(project_doc, asset_doc, task_name, host_name):
     """
     hierarchy = "/".join(asset_doc["data"]["parents"])
 
+    master_task = get_master_task(asset_doc, task_name)
+    if master_task:
+        task_name = master_task
 
     task_type = asset_doc['data']['tasks'].get(task_name, {}).get('type')
 
@@ -491,7 +519,6 @@ def get_workdir_data(project_doc, asset_doc, task_name, host_name):
     parent = project_doc["name"]
     if len(asset_doc["data"]["parents"]) != 0:
         parent = asset_doc["data"]["parents"][-1]
-
 
     data = {
         "project": {
