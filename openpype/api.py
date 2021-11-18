@@ -43,6 +43,10 @@ from .lib.avalon_context import (
     BuildWorkfile
 )
 
+from .lib.build_template import (
+    BuildWorkfileTemplate
+)
+
 from . import resources
 
 from .plugin import (
@@ -88,6 +92,7 @@ __all__ = [
     "get_default_components",
     "ApplicationManager",
     "BuildWorkfile",
+    "BuildWorkfileTemplate",
 
     # Resources
     "resources",

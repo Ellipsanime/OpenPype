@@ -9,6 +9,8 @@ import maya.cmds as cmds
 from avalon.maya import pipeline
 
 from openpype.api import BuildWorkfile
+from openpype.api import BuildWorkfileTemplate
+from lib_template_builder import create_place_holder
 from openpype.settings import get_project_settings
 from openpype.tools.utils import host_tools
 from openpype.hosts.maya.api import lib
@@ -34,6 +36,25 @@ def deferred():
             "Build First Workfile",
             parent=pipeline._menu,
             command=lambda *args: BuildWorkfile().process()
+        )
+
+    def add_build_template_workfiles_item():
+        _builder_menu = cmds.menuItem(
+            "Template Builder",
+            subMenu=True,
+            tearOff=True,
+            parent=pipeline._menu
+        )
+        cmds.menuItem(
+            "Build Workfile from template",
+            parent=_builder_menu,
+            command=lambda *args: BuildWorkfileTemplate().process()
+        )
+        cmds.menuItem(divider=True)
+        cmds.menuItem(
+            "Create Place Holder",
+            parent=_builder_menu,
+            command=lambda *args: create_place_holder()
         )
 
     def add_look_assigner_item():
@@ -193,6 +214,7 @@ def deferred():
 
     # add_scripts_menu()
     add_build_workfiles_item()
+    add_build_template_workfiles_item()
     add_look_assigner_item()
     add_experimental_item()
     modify_workfiles()
