@@ -505,7 +505,6 @@ def get_workdir_data(project_doc, asset_doc, task_name, host_name):
     """
     hierarchy = "/".join(asset_doc["data"]["parents"])
 
-
     master_task = get_master_task(asset_doc, task_name)
     if master_task:
         task_name = master_task
@@ -514,6 +513,10 @@ def get_workdir_data(project_doc, asset_doc, task_name, host_name):
 
     project_task_types = project_doc["config"]["tasks"]
     task_code = project_task_types.get(task_type, {}).get("short_name")
+
+    parent = project_doc["name"]
+    if len(asset_doc["data"]["parents"]) != 0:
+        parent = asset_doc["data"]["parents"][-1]
 
 
     data = {
@@ -527,6 +530,7 @@ def get_workdir_data(project_doc, asset_doc, task_name, host_name):
             "short": task_code,
         },
         "asset": asset_doc["name"],
+        "parent": parent,
         "app": host_name,
         "user": getpass.getuser(),
         "hierarchy": hierarchy,
