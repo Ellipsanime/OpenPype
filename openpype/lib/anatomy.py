@@ -535,7 +535,7 @@ class Templates:
     key_padding_pattern = re.compile(r"([^:]+)\S+[><]\S+")
     sub_dict_pattern = re.compile(r"([^\[\]]+)")
     optional_pattern = re.compile(r"(<.*?[^{0]*>)[^0-9]*?")
-
+    key_and_function_pattern = re.compile(r"(\S+)\.(\S+)\((\S+)?\)")
     inner_key_pattern = re.compile(r"(\{@.*?[^{}0]*\})")
     inner_key_name_pattern = re.compile(r"\{@(.*?[^{}0]*)\}")
 
@@ -997,12 +997,19 @@ class Templates:
         ):
             data["task"] = {"name": task_data}
 
+        function_to_execute = []
+
         for group in self.key_pattern.findall(template):
             orig_key = group[1:-1]
             key = str(orig_key)
             key_padding = list(self.key_padding_pattern.findall(key))
+            match_function = self.key_and_function_pattern.match(key)
+
             if key_padding:
                 key = key_padding[0]
+
+            if match_function:
+                key = match_function.group(1)
 
             validation_result = self._validate_data_key(key, data)
             missing_key = validation_result["missing_key"]
@@ -1016,6 +1023,10 @@ class Templates:
             if missing_key is not None:
                 missing_required.append(missing_key)
                 replace_keys.append(key)
+                continue
+
+            if match_function:
+                function_to_execute.append(orig_key)
                 continue
 
             try:
@@ -1047,6 +1058,30 @@ class Templates:
                 replace_key_src_curly, replace_key_dst_curly
             )
             final_data[replace_key_dst] = replace_key_src_curly
+
+        for key in function_to_execute:
+            attrs_function = self.key_and_function_pattern.match(key).groups()
+            if len(attrs_function) <= 1:
+                final_data[key] = "{" + key + "}"
+                continue
+
+            replace_key_dst = "-->".join(attrs_function)
+            replace_key_dst_curly = "{" + replace_key_dst + "}"
+            replace_key_src_curly = "{" + key + "}"
+            template = template.replace(
+                replace_key_src_curly, replace_key_dst_curly
+            )
+            function_name = attrs_function[1]
+            function_attrs = attrs_function[2].split(",") \
+                if attrs_function[2] else []
+            try:
+                value = data[attrs_function[0]]
+                new_value = getattr(value, function_name)(*function_attrs)
+                final_data[replace_key_dst] = new_value
+            except AttributeError:
+                missing_required.append(key)
+            except TypeError as e:
+                invalid_required.append(e)
 
         solved = len(missing_required) == 0 and len(invalid_required) == 0
 
