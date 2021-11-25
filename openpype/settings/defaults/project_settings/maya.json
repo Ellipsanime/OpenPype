@@ -154,7 +154,8 @@
     },
     "publish": {
         "CollectMayaRender": {
-            "sync_workfile_version": false
+            "sync_workfile_version": false,
+            "aov_render_directory": "renders"
         },
         "ValidateInstanceInContext": {
             "enabled": true,

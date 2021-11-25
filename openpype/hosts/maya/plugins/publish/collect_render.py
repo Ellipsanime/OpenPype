@@ -60,6 +60,7 @@ class CollectMayaRender(pyblish.api.ContextPlugin):
     hosts = ["maya"]
     label = "Collect Render Layers"
     sync_workfile_version = False
+    aov_render_directory = ""
 
     def process(self, context):
         """Entry point to collector."""
@@ -212,9 +213,9 @@ class CollectMayaRender(pyblish.api.ContextPlugin):
                 full_paths = []
                 for file in aov[aov.keys()[0]]:
                     if 'overrideOutput' in overrides:
-                        full_path = os.path.join(overrides['overrideOutput'], "RENDER", file)
+                        full_path = os.path.join(overrides['overrideOutput'], self.aov_render_directory, file)
                     else:
-                        full_path = os.path.join(workspace, "RENDER", file)
+                        full_path = os.path.join(workspace, self.aov_render_directory, file)
                     full_path = full_path.replace("\\", "/")
                     full_paths.append(full_path)
                     publish_meta_path = os.path.dirname(full_path)

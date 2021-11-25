@@ -18,6 +18,11 @@
                     "type": "boolean",
                     "key": "sync_workfile_version",
                     "label": "Sync render version with workfile"
+                },
+                {
+                    "type": "text",
+                    "key": "aov_render_directory",
+                    "label": "AOV render directory"
                 }
             ]
         },
