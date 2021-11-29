@@ -61,6 +61,7 @@ class CollectMayaRender(pyblish.api.ContextPlugin):
     hosts = ["maya"]
     label = "Collect Render Layers"
     sync_workfile_version = False
+    aov_render_directory = ""
 
     _aov_chars = {
         "dot": ".",
@@ -90,6 +91,9 @@ class CollectMayaRender(pyblish.api.ContextPlugin):
             return
 
         render_globals = render_instance
+        # Get global overrides and translate to Deadline values
+        overrides = self.parse_options(str(render_globals))
+
         collected_render_layers = render_instance.data["setMembers"]
         filepath = context.data["currentFile"].replace("\\", "/")
         asset = api.Session["AVALON_ASSET"]
@@ -228,7 +232,14 @@ class CollectMayaRender(pyblish.api.ContextPlugin):
             for aov in exp_files:
                 full_paths = []
                 for file in aov[aov.keys()[0]]:
-                    full_path = os.path.join(workspace, "renders", file)
+                    if 'overrideOutput' in overrides:
+                        full_path = os.path.join(overrides['overrideOutput'],
+                                                 self.aov_render_directory,
+                                                 file)
+                    else:
+                        full_path = os.path.join(workspace,
+                                                 self.aov_render_directory,
+                                                 file)
                     full_path = full_path.replace("\\", "/")
                     full_paths.append(full_path)
                     publish_meta_path = os.path.dirname(full_path)
@@ -372,8 +383,6 @@ class CollectMayaRender(pyblish.api.ContextPlugin):
                 data["families"].append("assscene_render")
 
             # Include (optional) global settings
-            # Get global overrides and translate to Deadline values
-            overrides = self.parse_options(str(render_globals))
             data.update(**overrides)
 
             # Define nice label
@@ -417,6 +426,11 @@ class CollectMayaRender(pyblish.api.ContextPlugin):
         if machine_list:
             key = "Whitelist" if attributes["whitelist"] else "Blacklist"
             options["renderGlobals"][key] = machine_list
+
+        # Override Output
+        override_output = attributes["overrideOutput"]
+        if override_output:
+            options["overrideOutput"] = override_output
 
         # Suspend publish job
         state = "Suspended" if attributes["suspendPublishJob"] else "Active"
