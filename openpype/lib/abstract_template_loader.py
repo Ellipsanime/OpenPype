@@ -1,0 +1,419 @@
+import os
+import re
+import avalon
+from abc import ABCMeta, abstractmethod
+
+import six
+
+from openpype.settings import get_project_settings
+from openpype.lib import Anatomy, get_linked_assets, get_loaders_by_name,\
+    collect_last_version_repres
+
+from openpype.lib.build_template_exceptions import (
+    TemplateAlreadyImported,
+    TemplateLoadingFailed,
+    TemplateProfileNotFound,
+    TemplateNotFound
+)
+
+
+@six.add_metaclass(ABCMeta)
+class AbstractTemplateLoader:
+    """
+    Abstraction of Template Loader.
+
+    Properties:
+        template_path : property to get current template path
+
+    Methods:
+        import_template : Abstract Method. Used to load template,
+            depending on current host
+        get_template_nodes : Abstract Method. Used to query nodes acting
+            as placeholders. Depending on current host
+    """
+
+    def __init__(self, placeholder_class):
+
+        self.loaders_by_name = get_loaders_by_name()
+        self.current_asset = avalon.io.Session["AVALON_ASSET"]
+        self.placeholder_class = placeholder_class
+        self.current_asset_docs = avalon.io.find_one({
+            "type": "asset",
+            "name": self.current_asset
+        })
+
+        # Skip if there is no loader
+        if not self.loaders_by_name:
+            self.log.warning("There are no registered loaders.")
+            return
+
+    def template_already_imported(self, err_msg):
+        """In case template was already loaded.
+        Raise the error as a default action.
+
+        Override this method in your template loader implementation
+        to manage this case."""
+        raise TemplateAlreadyImported(err_msg)
+
+    def template_loading_failed(self, err_msg):
+        """In case template loading failed
+        Raise the error as a default action.
+
+        Override this method in your template loader implementation
+        to manage this case.
+        """
+        raise TemplateLoadingFailed(err_msg)
+
+    @property
+    def template_path(self):
+        """
+        Property returning template path. Avoiding setter.
+        Getting template path from open pype settings based on current avalon
+        session and solving the path variables if needed.
+
+        Returns:
+            str: Solved template path
+
+        Raises:
+            TemplateProfileNotFound: No profile found from settings for
+                current avalon session
+            KeyError: Could not solve path because a key does not exists
+                in avalon context
+            TemplateNotFound: Solved path does not exists on current filesystem
+        """
+        project_name = avalon.io.Session["AVALON_PROJECT"]
+        anatomy = Anatomy(project_name)
+        project_settings = get_project_settings(project_name)
+        host_name = avalon.io.Session["AVALON_APP"]
+        task_name = avalon.io.Session["AVALON_TASK"]
+        task_type = (
+            self.current_asset_docs
+            .get("data", {})
+            .get("tasks", {})
+            .get(task_name, {})
+            .get("type")
+        )
+        build_info = project_settings[host_name]['templated_workfile_build']
+        profiles = build_info['profiles']
+
+        for prf in profiles:
+            if prf['task_types'] and task_type not in prf['task_types']:
+                continue
+            if prf['task_names'] and task_name not in prf['task_names']:
+                continue
+            path = prf['path']
+            break
+        else:
+            raise TemplateProfileNotFound(
+                "No matching profile found for task '{}' of type '{}' "
+                "with host '{}'".format(task_name, task_type, host_name)
+            )
+        if path is None:
+            raise TemplateLoadingFailed(
+                "Template path is None.\n"
+                "Path need to be set in {}\\Template Workfile Build "
+                "Settings\\Profiles".format(host_name.title()))
+        try:
+            solved_path = None
+            while True:
+                solved_path = anatomy.path_remapper(path)
+                if solved_path == path:
+                    break
+                path = solved_path
+        except KeyError as missing_key:
+            raise KeyError(
+                "Could not solve key '{}' in template path '{}'".format(
+                    missing_key, path))
+
+        if not os.path.exists(solved_path):
+            raise TemplateNotFound(
+                "Template found in openPype settings for task '{}' with host "
+                "'{}' does not exists. (Not found : {})".format(
+                    task_name, host_name, solved_path))
+        return solved_path
+
+    def populate_template(self):
+        """
+        Use template placeholders to load assets and parent them in hierarchy
+
+        Arguments :
+            current_asset (str):
+            loader_by_name (dict(name:loader)):
+            placeholder_class (AbstractPlaceHolder):
+
+        Returns:
+            None
+        """
+        loaders_by_name = self.loaders_by_name
+        current_asset = self.current_asset
+        current_asset_docs = self.current_asset_docs
+
+        linked_asset_docs = get_linked_assets(current_asset_docs)
+        assets_to_load = {asset['name'] for asset in linked_asset_docs}
+        version_repres = collect_last_version_repres(
+            [current_asset_docs] + linked_asset_docs)
+
+        representations_by_id = self.get_representations_by_id(version_repres)
+
+        context_representations_by_id = dict()
+        linked_representations_by_id = dict()
+        for k in representations_by_id.keys():
+            asset = representations_by_id[k]['context']['asset']
+            if asset == current_asset:
+                context_representations_by_id[k] = representations_by_id[k]
+            else:
+                linked_representations_by_id[k] = representations_by_id[k]
+
+        sorted_placeholders = self.get_sorted_placeholders()
+
+        loaded_assets = set()
+        for placeholder in sorted_placeholders:
+            if placeholder.data['builder_type'] == 'context_asset':
+                representations_by_id = context_representations_by_id
+                assets_to_load.add(current_asset)
+            else:
+                representations_by_id = linked_representations_by_id
+            for items in representations_by_id.items():
+                representation_id, representation = items
+                if not placeholder.is_repres_valid(representation):
+                    continue
+                container = avalon.api.load(
+                    loaders_by_name[placeholder.loader],
+                    representation_id)
+                placeholder.parent_in_hierarchy(container)
+                loaded_assets.add(representation['context']['asset'])
+            placeholder.clean()
+
+        if not loaded_assets == assets_to_load:
+            unloaded = assets_to_load - loaded_assets
+            print("Error found while loading {}".format(unloaded))
+            print("It's possible that a needed asset wasn't published")
+            print("or that the build template is malformed, "
+                  "continue at your own risks.")
+
+    def update_template(self):
+        """Check if new assets where linked"""
+        loaders_by_name = self.loaders_by_name
+        current_asset = self.current_asset
+        current_asset_docs = self.current_asset_docs
+
+        linked_asset_docs = get_linked_assets(current_asset_docs)
+        assets_to_load = {asset['name'] for asset in linked_asset_docs}
+        version_repres = collect_last_version_repres(
+            [current_asset_docs] + linked_asset_docs)
+
+        representations_by_id = self.get_representations_by_id(version_repres)
+
+        context_representations_by_id = dict()
+        linked_representations_by_id = dict()
+        for k in representations_by_id.keys():
+            asset = representations_by_id[k]['context']['asset']
+            if asset == current_asset:
+                context_representations_by_id[k] = representations_by_id[k]
+            else:
+                linked_representations_by_id[k] = representations_by_id[k]
+
+        sorted_placeholders = self.get_sorted_placeholders()
+
+        loaded_containers_by_id = self.get_loaded_containers_by_id()
+        # loaded_containers_by_id = self.update_containers(
+        #     loaded_containers_by_id)
+        loaded_assets = set()
+        for placeholder in sorted_placeholders:
+            if placeholder.data['builder_type'] == 'context_asset':
+                representations_by_id = context_representations_by_id
+                assets_to_load.add(current_asset)
+            else:
+                representations_by_id = linked_representations_by_id
+            for items in representations_by_id.items():
+                representation_id, representation = items
+                if not placeholder.is_repres_valid(representation):
+                    continue
+                if str(representation_id) in loaded_containers_by_id:
+                    print("Already in scene : ", representation_id)
+                    continue
+                container = avalon.api.load(
+                    loaders_by_name[placeholder.loader],
+                    representation_id)
+                placeholder.parent_in_hierarchy(container)
+                loaded_assets.add(representation['context']['asset'])
+            placeholder.clean()
+
+        if not loaded_assets == assets_to_load:
+            unloaded = assets_to_load - loaded_assets
+            print("Error found while loading {}".format(unloaded))
+            print("It's possible that a needed asset wasn't published")
+            print("or that the build template is malformed, "
+                  "continue at your own risks.")
+
+    def get_sorted_placeholders(self):
+        placeholder_class = self.placeholder_class
+        placeholders = map(placeholder_class, self.get_template_nodes())
+        valid_placeholders = filter(placeholder_class.is_valid, placeholders)
+        sorted_placeholders = sorted(valid_placeholders,
+                                     key=placeholder_class.order)
+        return sorted_placeholders
+
+    def get_representations_by_id(self, version_representations):
+        return {
+            representation['_id']: representation
+            for asset in version_representations.values()
+            for subset in asset['subsets'].values()
+            for representation in subset['version']['repres']}
+
+    @abstractmethod
+    def get_loaded_containers_by_id(self):
+        """    """
+        pass
+
+    @abstractmethod
+    def import_template(self, template_path):
+        """
+        Import template in current host
+
+        Args:
+            template_path (str): fullpath to current task and
+                host's template file
+
+        Return:
+            None
+        """
+        pass
+
+    @abstractmethod
+    def get_template_nodes(self):
+        """
+        Returning a list of nodes acting as host placeholders for
+        templating. The data representation is by user.
+        AbstractLoadTemplate (and LoadTemplate) won't directly manipulate nodes
+
+        Args :
+            None
+
+        Returns:
+            list(AnyNode): Solved template path
+        """
+        pass
+
+
+@six.add_metaclass(ABCMeta)
+class AbstractPlaceholder:
+    """Abstraction of placeholders logic
+
+    Properties:
+        attributes: A list of mandatory attribute to decribe placeholder
+            and assets to load.
+        optional_attributes: A list of optional attribute to decribe
+            placeholder and assets to load
+        loader: Name of linked loader to use while loading assets
+        is_context: Is placeholder linked
+            to context asset (or to linked assets)
+
+    Methods:
+        is_repres_valid:
+        loader:
+        order:
+        is_valid:
+        get_data:
+        parent_in_hierachy:
+
+    """
+
+    attributes = {'builder_type', 'family',
+                  'representation', 'order', 'loader'}
+    optional_attributes = {}
+
+    def __init__(self, node):
+        self.get_data(node)
+
+    @abstractmethod
+    def get_data(self, node):
+        """
+        Collect placeholders information.
+
+        Args:
+            node (AnyNode): A unique node decided by Placeholder implementation
+        """
+        pass
+
+    def order(self):
+        """Get placeholder order to sort them by priority
+        Priority is lowset first, highest last
+        (ex:
+            1: First to load
+            100: Last to load)
+
+        Returns:
+            Int: Order priority
+        """
+        return self.data.get('order')
+
+    @property
+    def loader(self):
+        """Return placeholder loader type
+
+        Returns:
+            string: Loader name
+        """
+        return self.data.get('loader')
+
+    @property
+    def is_context(self):
+        """Return placeholder type
+        context_asset: For loading current asset
+        linked_asset: For loading linked assets
+
+        Returns:
+            bool: true if placeholder is a context placeholder
+        """
+        return self.data.get('builder_type') == 'context_asset'
+
+    def is_valid(self):
+        """Test validity of placeholder
+        i.e.: every attributes exists in placeholder data
+
+        Returns:
+            Bool: True if every attributes are a key of data
+        """
+        return set(self.attributes).issubset(self.data.keys())
+
+    @abstractmethod
+    def parent_in_hierarchy(self, containers):
+        """Place container in correct hierarchy
+        given by placeholder
+
+        Args:
+            containers (String): Container name returned back by
+                placeholder's loader.
+        """
+        pass
+
+    @abstractmethod
+    def clean(self):
+        """Clean placeholder from hierarchy after loading assets.
+        """
+        pass
+
+    def is_repres_valid(self, representation):
+        """Check that given representation correspond to current
+        placeholders values in data
+
+        Args:
+            representation (dict): Representations in avalon BDD
+
+        Returns:
+            Bool: True if representation correspond to placeholder data
+        """
+        data = self.data
+
+        rep_asset = representation['context']['asset']
+        rep_name = representation['context']['representation']
+        rep_hierarchy = representation['context']['hierarchy']
+        rep_family = representation['context']['family']
+
+        is_valid = bool(re.search(data.get('asset', ''), rep_asset))
+        is_valid &= bool(re.search(data.get('hierarchy', ''), rep_hierarchy))
+        is_valid &= data['representation'] == rep_name
+        is_valid &= data['family'] == rep_family
+
+        return is_valid
