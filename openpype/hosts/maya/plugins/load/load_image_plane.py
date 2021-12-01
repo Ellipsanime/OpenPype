@@ -5,7 +5,6 @@ from Qt import QtWidgets, QtCore
 
 from maya import cmds
 
-
 class CameraWindow(QtWidgets.QDialog):
 
     def __init__(self, cameras):
@@ -14,6 +13,7 @@ class CameraWindow(QtWidgets.QDialog):
 
         self.camera = None
         self.static_image_plane = False
+        # lol git qui bug
         self.show_in_all_views = False
 
         self.widgets = {
