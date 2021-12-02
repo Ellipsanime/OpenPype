@@ -121,16 +121,16 @@ class ValidateRenderSettings(pyblish.api.InstancePlugin):
             cls.log.error("Animation needs to be enabled. Use the same "
                           "frame for start and end to render single frame")
 
-        if not prefix.lower().startswith("maya/<scene>"):
-            invalid = True
-            cls.log.error("Wrong image prefix [ {} ] - "
-                          "doesn't start with: 'maya/<scene>'".format(prefix))
-
-        if not re.search(cls.R_LAYER_TOKEN, prefix):
-            invalid = True
-            cls.log.error("Wrong image prefix [ {} ] - "
-                          "doesn't have: '<renderlayer>' or "
-                          "'<layer>' token".format(prefix))
+        # if not prefix.lower().startswith("maya/<scene>"):
+        #     invalid = True
+        #     cls.log.error("Wrong image prefix [ {} ] - "
+        #                   "doesn't start with: 'maya/<scene>'".format(prefix))
+        #
+        # if not re.search(cls.R_LAYER_TOKEN, prefix):
+        #     invalid = True
+        #     cls.log.error("Wrong image prefix [ {} ] - "
+        #                   "doesn't have: '<renderlayer>' or "
+        #                   "'<layer>' token".format(prefix))
 
         if len(cameras) > 1 and not re.search(cls.R_CAMERA_TOKEN, prefix):
             invalid = True

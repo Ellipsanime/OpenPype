@@ -13,10 +13,6 @@ class CameraWindow(QtWidgets.QDialog):
 
         self.camera = None
         self.static_image_plane = False
-<<<<<<< HEAD
-        # lol git qui bug
-=======
->>>>>>> origin/maya-ImagePlaneLoader-load-blueprint
         self.show_in_all_views = False
 
         self.widgets = {
@@ -117,9 +113,6 @@ class ImagePlaneLoader(api.Loader):
             is_static_image_plane = window.static_image_plane
             is_in_all_views = window.show_in_all_views
 
-        is_static_image_plane = window.static_image_plane
-        is_in_all_views = window.show_in_all_views
-
         if camera == "create_camera":
             camera = pm.createNode("camera")
 
@@ -134,18 +127,14 @@ class ImagePlaneLoader(api.Loader):
 
         # Create image plane
         image_plane_transform, image_plane_shape = pm.imagePlane(
-            camera=camera, showInAllViews=is_in_all_views
+            fileName=context["representation"]["data"]["path"], camera=camera, showInAllViews=is_in_all_views
         )
         image_plane_shape.depth.set(image_plane_depth)
-
-        image_plane_shape.imageName.set(
-            context["representation"]["data"]["path"]
-        )
 
         if is_static_image_plane:
             image_plane_shape.setMaintainRatio(True)
             image_plane_shape.detach()
-            image_plane_transform.setRotation(camera.getRotation())
+            image_plane_transform.setRotation(camera.getTransform().getRotation())
 
         start_frame = pm.playbackOptions(q=True, min=True)
         end_frame = pm.playbackOptions(q=True, max=True)

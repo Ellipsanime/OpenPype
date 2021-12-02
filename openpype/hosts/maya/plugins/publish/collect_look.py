@@ -42,7 +42,6 @@ def get_look_attrs(node):
     is_referenced = cmds.referenceQuery(node, isNodeReferenced=True)
     result = cmds.listAttr(node, userDefined=True,
                            changedSinceFileOpen=is_referenced) or []
-
     # `cbId` is added when a scene is saved, ignore by default
     if "cbId" in result:
         result.remove("cbId")
@@ -489,6 +488,8 @@ class CollectLook(pyblish.api.InstancePlugin):
                 if not cmds.attributeQuery(attr, node=node, exists=True):
                     continue
                 attribute = "{}.{}".format(node, attr)
+                if cmds.getAttr(attribute, type=True) == "message":
+                    continue
                 node_attributes[attr] = cmds.getAttr(attribute)
 
             attributes.append({"name": node,

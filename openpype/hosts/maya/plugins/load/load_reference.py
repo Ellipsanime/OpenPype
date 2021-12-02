@@ -40,16 +40,21 @@ class ReferenceLoader(openpype.hosts.maya.api.plugin.ReferenceLoader):
         except ValueError:
             family = "model"
 
-        with maya.maintained_selection():
+        additional_args = {}
+        groupName = ""
+        if not options.get("attach_to_root", False):
             groupName = "{}:_GRP".format(namespace)
+            additional_args['groupReference'] = True
+            additional_args['groupName'] = groupName
+
+        with maya.maintained_selection():
             cmds.loadPlugin("AbcImport.mll", quiet=True)
             nodes = cmds.file(self.fname,
                               namespace=namespace,
                               sharedReferenceFile=False,
-                              groupReference=True,
-                              groupName=groupName,
                               reference=True,
-                              returnNewNodes=True)
+                              returnNewNodes=True,
+                              **additional_args)
 
             # namespace = cmds.referenceQuery(nodes[0], namespace=True)
 

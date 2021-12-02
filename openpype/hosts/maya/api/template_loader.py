@@ -114,11 +114,20 @@ class MayaPlaceholder(openpype.lib.AbstractPlaceholder):
         Args:
             containers (String): Placeholder loaded containers
         """
-        roots = [container.partition('__')[0] + "_:_GRP"
-                 for container in containers]
+        if not containers:
+            return
+
+        roots = cmds.sets(containers, q=True)
+        nodes_to_parent = []
+        for root in roots:
+            if root.endswith("_RN"):
+                refRoot = cmds.referenceQuery(root, n=True)[0]
+                nodes_to_parent.append(refRoot)
+            else:
+                nodes_to_parent.append(root)
 
         if self.data['parent']:
-            cmds.parent(roots, self.data['parent'])
+            cmds.parent(nodes_to_parent, self.data['parent'])
 
     def clean(self):
         """Hide placeholder
