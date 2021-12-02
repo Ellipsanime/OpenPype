@@ -13,7 +13,10 @@ class CameraWindow(QtWidgets.QDialog):
 
         self.camera = None
         self.static_image_plane = False
+<<<<<<< HEAD
         # lol git qui bug
+=======
+>>>>>>> origin/maya-ImagePlaneLoader-load-blueprint
         self.show_in_all_views = False
 
         self.widgets = {
@@ -82,7 +85,7 @@ class ImagePlaneLoader(api.Loader):
     icon = "image"
     color = "orange"
 
-    def load(self, context, name, namespace, data, option=None):
+    def load(self, context, name, namespace, data, options=None):
         import pymel.core as pm
 
         new_nodes = []
@@ -96,12 +99,23 @@ class ImagePlaneLoader(api.Loader):
 
         # Get camera from user selection.
         camera = None
-        cameras = pm.ls(type="camera")
-        camera_names = {x.getParent().name(): x for x in cameras}
-        camera_names["Create new camera."] = "create_camera"
-        window = CameraWindow(camera_names.keys())
-        window.exec_()
-        camera = camera_names[window.camera]
+        is_static_image_plane = None
+        is_in_all_views = None
+        if data:
+            camera = pm.PyNode(data.get("camera"))
+            is_static_image_plane = data.get("static_image_plane")
+            is_in_all_views = data.get("in_all_views")
+
+        if not camera:
+            cameras = pm.ls(type="camera")
+            camera_names = {x.getParent().name(): x for x in cameras}
+            camera_names["Create new camera."] = "create_camera"
+            window = CameraWindow(camera_names.keys())
+            window.exec_()
+            camera = camera_names[window.camera]
+
+            is_static_image_plane = window.static_image_plane
+            is_in_all_views = window.show_in_all_views
 
         is_static_image_plane = window.static_image_plane
         is_in_all_views = window.show_in_all_views
@@ -129,7 +143,9 @@ class ImagePlaneLoader(api.Loader):
         )
 
         if is_static_image_plane:
+            image_plane_shape.setMaintainRatio(True)
             image_plane_shape.detach()
+            image_plane_transform.setRotation(camera.getRotation())
 
         start_frame = pm.playbackOptions(q=True, min=True)
         end_frame = pm.playbackOptions(q=True, max=True)
