@@ -23,8 +23,16 @@ class ValidateRenderImageRule(pyblish.api.InstancePlugin):
 
     def process(self, instance):
 
-        assert get_file_rule("images") == "renders", (
-            "Workspace's `images` file rule must be set to: renders"
+        default_render_file = instance.context.data.get('project_settings')\
+            .get('maya') \
+            .get('create') \
+            .get('CreateRender') \
+            .get('default_render_image_folder')
+
+        assert get_file_rule("images") == default_render_file, (
+            "Workspace's `images` file rule must be set to: {}".format(
+                default_render_file
+            )
         )
 
     @classmethod
