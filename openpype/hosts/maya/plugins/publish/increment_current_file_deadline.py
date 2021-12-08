@@ -36,5 +36,6 @@ class IncrementCurrentFileDeadline(pyblish.api.ContextPlugin):
         elif new_filepath.endswith(".mb"):
             fileType = "mayaBinary"
 
+        cmds.file(current_filepath, open=True, force=True)
         cmds.file(rename=new_filepath)
         cmds.file(save=True, force=True, type=fileType)
