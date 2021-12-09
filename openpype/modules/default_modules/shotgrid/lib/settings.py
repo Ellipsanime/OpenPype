@@ -21,8 +21,8 @@ def get_shotgrid_settings() -> Dict[str, Any]:
     return get_system_settings().get("modules", {}).get(MODULE_NAME, {})
 
 
-def get_shotgrid_url() -> str:
-    return get_shotgrid_settings().get("shotgrid_url")
+def get_shotgrid_servers() -> Dict[str, Any]:
+    return get_shotgrid_settings().get("shotgrid_settings", {})
 
 
 def get_module_server_url() -> str:

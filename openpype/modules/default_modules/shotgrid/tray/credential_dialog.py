@@ -1,3 +1,4 @@
+import os
 from typing import Any
 from Qt import QtCore, QtWidgets, QtGui
 
@@ -15,7 +16,7 @@ class CredentialsDialog(QtWidgets.QDialog):
     url_label: QtWidgets.QLabel
     login_label: QtWidgets.QLabel
     password_label: QtWidgets.QLabel
-    url_input: QtWidgets.QLineEdit
+    url_input: QtWidgets.QComboBox
     login_input: QtWidgets.QLineEdit
     password_input: QtWidgets.QLineEdit
     input_layout: QtWidgets.QFormLayout
@@ -45,12 +46,12 @@ class CredentialsDialog(QtWidgets.QDialog):
         self.ui_init()
 
     def ui_init(self):
-        self.url_label = QtWidgets.QLabel("Shotgrid URL:")
+        self.url_label = QtWidgets.QLabel("Shotgrid server:")
         self.login_label = QtWidgets.QLabel("Login:")
         self.password_label = QtWidgets.QLabel("Password:")
 
-        self.url_input = QtWidgets.QLineEdit()
-        self.url_input.setReadOnly(True)
+        self.url_input = QtWidgets.QComboBox()
+        # self.url_input.setReadOnly(True)
 
         self.login_input = QtWidgets.QLineEdit()
         self.login_input.setPlaceholderText("login")
@@ -92,19 +93,20 @@ class CredentialsDialog(QtWidgets.QDialog):
     def show(self, *args, **kwargs):
         super(CredentialsDialog, self).show(*args, **kwargs)
         self._fill_shotgrid_url()
-        self._fill_shotgrid_login()
+        # self._fill_shotgrid_login()
 
     def _fill_shotgrid_url(self):
-        url = settings.get_shotgrid_url()
+        servers = settings.get_shotgrid_servers()
 
-        if url:
-            self.url_input.setText(url)
+        if servers:
+            for k, v in servers.items():
+                self.url_input.addItem("{}".format(v.get('shotgrid_url')))
             self._valid_input(self.url_input)
             self.login_button.show()
             self.logout_button.show()
             enabled = True
         else:
-            self.url_input.setText("Ask your admin to add the shotgrid url")
+            self.set_error("Ask your admin to add shotgrid server in settings")
             self._invalid_input(self.url_input)
             self.login_button.hide()
             self.logout_button.hide()
@@ -114,14 +116,10 @@ class CredentialsDialog(QtWidgets.QDialog):
         self.password_input.setEnabled(enabled)
 
     def _fill_shotgrid_login(self):
-        cred = credentials.get_credentials(settings.get_shotgrid_url())
-        login = cred.login
-        password = cred.password
+        login = credentials.clear_local_login()
 
         if login:
             self.login_input.setText(login)
-        if password:
-            self.password_input.setText(password)
 
     def _clear_shotgrid_login(self):
         self.login_input.setText("")
@@ -140,7 +138,7 @@ class CredentialsDialog(QtWidgets.QDialog):
             missing.append("password")
             self._invalid_input(self.password_input)
 
-        url = settings.get_shotgrid_url()
+        url = self.url_input.currentText()
         if url == "":
             missing.append("url")
             self._invalid_input(self.url_input)
@@ -149,20 +147,22 @@ class CredentialsDialog(QtWidgets.QDialog):
             self.set_error("You didn't enter {}".format(" and ".join(missing)))
             return
 
-        if credentials.check_credentials(
-            login=login,
-            password=password,
-            shotgrid_url=url,
-        ):
-            credentials.save_credentials(
-                login=login, password=password, shotgrid_url=url
-            )
-            self._on_login()
+        # if credentials.check_credentials(
+        #     login=login,
+        #     password=password,
+        #     shotgrid_url=url,
+        # ):
+        credentials.save_local_login(
+            login=login
+        )
+        os.environ['OPENPYPE_SG_USER'] = login
+        self._on_login()
 
         self.set_error("CANT LOGIN")
 
     def _on_shotgrid_logout_clicked(self):
-        credentials.clear_credentials(settings.get_shotgrid_url())
+        credentials.clear_local_login()
+        del os.environ['OPENPYPE_SG_USER']
         self._clear_shotgrid_login()
         self._on_logout()
 

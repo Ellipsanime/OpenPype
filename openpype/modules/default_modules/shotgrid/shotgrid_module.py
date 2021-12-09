@@ -28,14 +28,6 @@ class ShotgridModule(
     def initialize(self, modules_settings: Dict[str, Any]):
         shotgrid_settings = modules_settings.get(self.name, dict())
         self.enabled = shotgrid_settings.get("enabled", False)
-        shotgrid_url = shotgrid_settings.get("shotgrid_url").strip()
-
-        self.shotgrid_url = shotgrid_url
-
-        self.project_id = shotgrid_settings.get("project_id")
-
-        # if self.enabled and not self.project_id:
-        #     raise Exception("Project id is not set in settings.")
 
     def connect_with_modules(self, enabled_modules):
         pass
@@ -64,11 +56,3 @@ class ShotgridModule(
 
     def tray_menu(self, tray_menu):
         return self.tray_wrapper.tray_menu(tray_menu)
-
-    def create_shotgrid_session(self) -> shotgun_api3.Shotgun:
-        credentials_ = credentials.get_credentials(settings.get_shotgrid_url())
-        return shotgun_api3.Shotgun(
-            base_url=self.shotgrid_url,
-            login=credentials_.login,
-            password=credentials_.password,
-        )

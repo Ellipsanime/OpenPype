@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 import shotgun_api3
 from shotgun_api3.shotgun import AuthenticationFault
 
-from openpype.lib import OpenPypeSecureRegistry
+from openpype.lib import OpenPypeSecureRegistry, OpenPypeSettingsRegistry
 from openpype.modules.default_modules.shotgrid.lib.record import Credentials
 
 
@@ -30,6 +30,9 @@ def get_shotgrid_hostname(shotgrid_url: str) -> str:
         f"//{shotgrid_url}" if "//" not in shotgrid_url else shotgrid_url
     )
     return urlparse(valid_shotgrid_url).hostname
+
+
+# Credentials storing function (using keyring)
 
 
 def get_credentials(shotgrid_url: str) -> Optional[Credentials]:
@@ -78,6 +81,27 @@ def clear_credentials(shotgrid_url: str):
 
     if password_value is not None:
         password_registry.delete_item(Credentials.password_key_prefix())
+
+
+# Login storing function (using json)
+
+
+def get_local_login() -> Optional[str]:
+    reg = OpenPypeSettingsRegistry()
+    try:
+        return str(reg.get_item("shotgrid_login"))
+    except Exception as e:
+        return None
+
+
+def save_local_login(login: str):
+    reg = OpenPypeSettingsRegistry()
+    reg.set_item("shotgrid_login", login)
+
+
+def clear_local_login():
+    reg = OpenPypeSettingsRegistry()
+    reg.delete_item("shotgrid_login")
 
 
 def check_credentials(

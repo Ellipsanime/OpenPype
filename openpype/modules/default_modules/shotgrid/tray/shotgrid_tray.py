@@ -36,7 +36,6 @@ class ShotgridTrayWrapper:
                               width=785, height=480)
         webview.start(gui='cef')
 
-
     def show_connect_dialog(self):
         self.show_credential_dialog()
 
@@ -63,14 +62,11 @@ class ShotgridTrayWrapper:
                 m.addAction(shotgrid_manager_action)
 
     def validate(self) -> bool:
-        shotgrid_url = settings.get_shotgrid_url()
+        login = credentials.get_local_login()
 
-        if not shotgrid_url:
+        if not login:
             self.show_credential_dialog()
-            return True
+        else:
+            os.environ['OPENPYPE_SG_USER'] = login
 
-        cred = credentials.get_credentials(settings.get_shotgrid_url())
-
-        if cred.is_empty():
-            self.show_credential_dialog()
         return True
