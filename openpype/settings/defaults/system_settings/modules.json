@@ -132,9 +132,7 @@
     "shotgrid": {
         "enabled": true,
         "module_server_url": "",
-        "shotgrid_url": "",
-        "shotgrid_script_name": "",
-        "shotgrid_script_key": ""
+        "shotgrid_settings": {}
     },
     "timers_manager": {
         "enabled": true,

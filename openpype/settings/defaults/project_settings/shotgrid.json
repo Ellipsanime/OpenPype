@@ -1,10 +1,6 @@
 {
     "shotgrid_project_id": 0,
-    "auth": {
-        "project_shotgrid_url": "",
-        "project_shotgrid_script_name": "",
-        "project_shotgrid_script_key": ""
-    },
+    "shotgrid_server": "",
     "event": {
         "enabled": false
     },

@@ -11,31 +11,9 @@
             "label": "Shotgrid project id"
         },
         {
-            "type": "dict",
-            "key": "auth",
-            "label": "Authentication",
-            "collapsible": true,
-            "children": [
-                {
-                    "type": "label",
-                    "label": "You can specify a shotgun instance here, use System settings if you leave it blank"
-                },
-                {
-                    "type": "text",
-                    "key": "project_shotgrid_url",
-                    "label": "Server URL"
-                },
-                {
-                    "type": "text",
-                    "key": "project_shotgrid_script_name",
-                    "label": "Script Name"
-                },
-                {
-                    "type": "text",
-                    "key": "project_shotgrid_script_key",
-                    "label": "Script Key"
-                }
-            ]
+            "type": "shotgrid_url-enum",
+            "key": "shotgrid_server",
+            "label": "Shotgrid Server"
         },
         {
             "type": "dict",

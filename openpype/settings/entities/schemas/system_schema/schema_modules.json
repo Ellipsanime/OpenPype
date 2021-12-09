@@ -62,19 +62,29 @@
                     "label": "Module Server URL"
                 },
                 {
-                    "type": "text",
-                    "key": "shotgrid_url",
-                    "label": "Shotgrid Server URL"
-                },
-                {
-                    "type": "text",
-                    "key": "shotgrid_script_name",
-                    "label": "Shotgrid Script Name"
-                },
-                {
-                    "type": "text",
-                    "key": "shotgrid_script_key",
-                    "label": "Shotgrid Script Key"
+                    "type": "dict-modifiable",
+                    "key": "shotgrid_settings",
+                    "label": "Shotgrid Servers",
+                    "object_type": {
+                        "type": "dict",
+                        "children": [
+                            {
+                                "key": "shotgrid_url",
+                                "label": "Server URL",
+                                "type": "text"
+                            },
+                            {
+                                "key": "shotgrid_script_name",
+                                "label": "Script Name",
+                                "type": "text"
+                            },
+                            {
+                                "key": "shotgrid_script_key",
+                                "label": "Script api key",
+                                "type": "text"
+                            }
+                        ]
+                    }
                 }
             ]
         },
