@@ -2,8 +2,9 @@ import os
 import sys
 import pyblish.api
 import shotgun_api3
-from openpype.lib import OpenPypeSecureRegistry
-from openpype.api import get_project_settings
+from shotgun_api3.shotgun import AuthenticationFault
+from openpype.lib import OpenPypeSettingsRegistry
+from openpype.api import get_project_settings, get_system_settings
 
 if sys.version_info[0] == 2:
     from urlparse import urlparse
@@ -21,11 +22,19 @@ class CollectShotgridSession(pyblish.api.ContextPlugin):
         avalon_project = os.getenv("AVALON_PROJECT")
 
         shotgrid_settings = get_shotgrid_settings(avalon_project)
-        shotgrid_url = shotgrid_settings.get('auth', {}).get('project_shotgrid_url')
-        shotgrid_script_name = shotgrid_settings.get('auth', {}).get('project_shotgrid_script_name')
-        shotgrid_script_key = shotgrid_settings.get('auth', {}).get('project_shotgrid_script_key')
+        shotgrid_servers_settings = get_shotgrid_servers()
 
-        login = "rd.dev" #get_login(shotgrid_url)
+        shotgrid_server = shotgrid_settings.get('shotgrid_server', "")
+        shotgrid_server_setting = shotgrid_servers_settings.get(shotgrid_server, {})
+        shotgrid_url = shotgrid_server_setting.get('shotgrid_url', "")
+        shotgrid_script_name = shotgrid_server_setting.get('shotgrid_script_name', "")
+        shotgrid_script_key = shotgrid_server_setting.get('shotgrid_script_key', "")
+
+        login = get_login() or os.getenv("OPENPYPE_SG_USER")
+
+        if not login:
+            self.log.error("No Shotgrid login found, please login to shotgrid withing openpype Tray")
+
         session = shotgun_api3.Shotgun(
             base_url=shotgrid_url,
             script_name=shotgrid_script_name,
@@ -33,7 +42,9 @@ class CollectShotgridSession(pyblish.api.ContextPlugin):
             sudo_as_login=login
         )
 
-        if not session:
+        try:
+            session.preferences_read()
+        except AuthenticationFault:
             raise ValueError("Could not connect to shotgrid {} with user {}".format(shotgrid_url, login))
 
         self.log.info("Logged to shotgrid {} with user {}".format(shotgrid_url, login))
@@ -44,36 +55,13 @@ def get_shotgrid_settings(project):
     return get_project_settings(project).get('shotgrid', {})
 
 
-def _get_shotgrid_secure_key(hostname, key):
-    """Secure item key for entered hostname."""
-    return "shotgrid/{}/{}".format(hostname, key)
+def get_shotgrid_servers():
+    return get_system_settings().get('modules', {}).get('shotgrid', {}).get('shotgrid_settings', {})
 
 
-def _get_secure_value_and_registry(
-    hostname,
-    name,
-):
-    key = _get_shotgrid_secure_key(hostname, name)
-    registry = OpenPypeSecureRegistry(key)
-    return registry.get_item(name, None), registry
-
-
-def get_shotgrid_hostname(shotgrid_url):
-
-    if not shotgrid_url:
-        raise Exception("Shotgrid url cannot be a null")
-    valid_shotgrid_url = (
-        "//{}".format(shotgrid_url) if "//" not in shotgrid_url else shotgrid_url
-    )
-    return urlparse(valid_shotgrid_url).hostname
-
-
-def get_login(shotgrid_url):
-    hostname = get_shotgrid_hostname(shotgrid_url)
-    if not hostname:
+def get_login():
+    reg = OpenPypeSettingsRegistry()
+    try:
+        return str(reg.get_item("shotgrid_login"))
+    except Exception as e:
         return None
-    login_value, _ = _get_secure_value_and_registry(
-        hostname,
-        "login",
-    )
-    return login_value
