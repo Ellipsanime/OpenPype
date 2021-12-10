@@ -11,7 +11,7 @@ from openpype.modules.default_modules.shotgrid.tray.batch_dialog import (
 from openpype.modules.default_modules.shotgrid.tray.manager_api import (
     ManagerApi,
 )
-from openpype.modules.default_modules.shotgrid.lib import credentials, settings
+from openpype.modules.default_modules.shotgrid.lib import credentials
 
 from Qt import QtWidgets
 import webview
@@ -20,11 +20,16 @@ import webview
 class ShotgridTrayWrapper:
     module: Any
     credentials_dialog: CredentialsDialog
+    logged_user_label: QtWidgets.QAction
 
     def __init__(self, module) -> None:
         self.module = module
         self.credentials_dialog = CredentialsDialog(module)
+        self.credentials_dialog.login_changed.connect(self.set_login_label)
         self.batch_dialog = BatchDialog(module)
+        self.logged_user_label = QtWidgets.QAction("")
+        self.logged_user_label.setDisabled(True)
+        self.set_login_label()
 
     def show_batch_dialog(self):
         # pass
@@ -44,11 +49,20 @@ class ShotgridTrayWrapper:
         self.credentials_dialog.activateWindow()
         self.credentials_dialog.raise_()
 
+    def set_login_label(self):
+        login = credentials.get_local_login()
+        if login:
+            self.logged_user_label.setText("{}".format(login))
+        else:
+            self.logged_user_label.setText("No User logged in".format(login))
+
     def tray_menu(self, tray_menu):
         # Add login to user menu
         menu = QtWidgets.QMenu("Shotgrid", tray_menu)
         show_connect_action = QtWidgets.QAction("Connect to Shotgrid", menu)
         show_connect_action.triggered.connect(self.show_connect_dialog)
+        menu.addAction(self.logged_user_label)
+        menu.addSeparator()
         menu.addAction(show_connect_action)
         tray_menu.addMenu(menu)
 

@@ -24,6 +24,8 @@ class CredentialsDialog(QtWidgets.QDialog):
     buttons_layout: QtWidgets.QHBoxLayout
     main_widget: QtWidgets.QVBoxLayout
 
+    login_changed: QtCore.Signal = QtCore.Signal()
+
     def __init__(self, module, parent=None):
         super(CredentialsDialog, self).__init__(parent)
 
@@ -93,7 +95,7 @@ class CredentialsDialog(QtWidgets.QDialog):
     def show(self, *args, **kwargs):
         super(CredentialsDialog, self).show(*args, **kwargs)
         self._fill_shotgrid_url()
-        # self._fill_shotgrid_login()
+        self._fill_shotgrid_login()
 
     def _fill_shotgrid_url(self):
         servers = settings.get_shotgrid_servers()
@@ -116,7 +118,7 @@ class CredentialsDialog(QtWidgets.QDialog):
         self.password_input.setEnabled(enabled)
 
     def _fill_shotgrid_login(self):
-        login = credentials.clear_local_login()
+        login = credentials.get_local_login()
 
         if login:
             self.login_input.setText(login)
@@ -172,10 +174,12 @@ class CredentialsDialog(QtWidgets.QDialog):
 
     def _on_login(self):
         self._is_logged = True
+        self.login_changed.emit()
         self._close_widget()
 
     def _on_logout(self):
         self._is_logged = False
+        self.login_changed.emit()
 
     def _close_widget(self):
         self.hide()
