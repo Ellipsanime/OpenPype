@@ -20,7 +20,7 @@ class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
 
         shotgrid_version = context.data.get("shotgridVersion")
 
-        for representation in instance.data.get("representations"):
+        for representation in instance.data.get("representations", []):
 
             local_path = representation.get("published_path")
 
