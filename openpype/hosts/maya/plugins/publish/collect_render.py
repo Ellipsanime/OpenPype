@@ -228,7 +228,11 @@ class CollectMayaRender(pyblish.api.ContextPlugin):
             # append full path
             full_exp_files = []
             aov_dict = {}
-
+            default_render_file = context.data.get('project_settings')\
+                .get('maya')\
+                .get('create')\
+                .get('CreateRender')\
+                .get('default_render_image_folder')
             # replace relative paths with absolute. Render products are
             # returned as list of dictionaries.
             publish_meta_path = None
@@ -237,11 +241,11 @@ class CollectMayaRender(pyblish.api.ContextPlugin):
                 for file in aov[aov.keys()[0]]:
                     if 'overrideOutput' in overrides:
                         full_path = os.path.join(overrides['overrideOutput'],
-                                                 self.aov_render_directory,
+                                                 default_render_file,
                                                  file)
                     else:
                         full_path = os.path.join(workspace,
-                                                 self.aov_render_directory,
+                                                 default_render_file,
                                                  file)
                     full_path = full_path.replace("\\", "/")
                     full_paths.append(full_path)
