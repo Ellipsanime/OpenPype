@@ -241,11 +241,11 @@ class CollectMayaRender(pyblish.api.ContextPlugin):
                 for file in aov[aov.keys()[0]]:
                     if 'overrideOutput' in overrides:
                         full_path = os.path.join(overrides['overrideOutput'],
-                                                 self.aov_render_directory,
+                                                 default_render_file,
                                                  file)
                     else:
                         full_path = os.path.join(workspace,
-                                                 self.aov_render_directory,
+                                                 default_render_file,
                                                  file)
                     full_path = full_path.replace("\\", "/")
                     full_paths.append(full_path)

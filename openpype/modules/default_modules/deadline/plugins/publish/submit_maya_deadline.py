@@ -414,7 +414,7 @@ class MayaSubmitDeadline(pyblish.api.InstancePlugin):
             .get('default_render_image_folder')
         filename = os.path.basename(filepath)
         comment = context.data.get("comment", "")
-        dirname = os.path.join(workspace, "renders")
+        dirname = os.path.join(workspace, default_render_file)
         if override_output:
             dirname = override_output_path
         renderlayer = instance.data['setMembers']       # rs_beauty
