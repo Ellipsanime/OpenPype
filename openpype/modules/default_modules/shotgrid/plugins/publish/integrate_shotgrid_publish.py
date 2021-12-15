@@ -18,7 +18,7 @@ class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
 
         version_id = context.data.get("versionEntity", {}).get("_id")
 
-        shotgrid_version = context.data.get("shotgridVersion")
+        shotgrid_version = instance.data.get("shotgridVersion")
 
         for representation in instance.data.get("representations", []):
 
