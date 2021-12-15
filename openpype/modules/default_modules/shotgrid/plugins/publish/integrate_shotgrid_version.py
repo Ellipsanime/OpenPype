@@ -2,7 +2,7 @@ import os
 import pyblish.api
 
 
-class IntegrateShotgridVersion(pyblish.api.ContextPlugin):
+class IntegrateShotgridVersion(pyblish.api.InstancePlugin):
     """ Integrate Shotgrid Version """
 
     order = pyblish.api.IntegratorOrder+0.497
@@ -10,11 +10,22 @@ class IntegrateShotgridVersion(pyblish.api.ContextPlugin):
 
     sg = None
 
-    def process(self, context):
+    def process(self, instance):
 
+        context = instance.context
         self.sg = context.data.get("shotgridSession")
 
-        code = os.path.splitext(os.path.basename(context.data.get("currentFile")))[0]
+        # TODO: Use path template solver to build version code from settings
+        anatomy = instance.data.get("anatomyData", {})
+        code = "_".join(
+            [
+                anatomy['project']['code'],
+                anatomy['parent'],
+                anatomy['asset'],
+                anatomy['task']['name'],
+                "v{:03}".format(int(anatomy['version']))
+            ]
+        )
 
         version = self._find_existing_version(code, context)
 
@@ -23,8 +34,9 @@ class IntegrateShotgridVersion(pyblish.api.ContextPlugin):
             self.log.info("Create Shotgrid version: {}".format(version))
         else:
             self.log.info("Use existing Shotgrid version: {}".format(version))
+            self.sg.update("Version", version['id'], _additional_version_data(context))
 
-        context.data["shotgridVersion"] = version
+        instance.data["shotgridVersion"] = version
 
     def _find_existing_version(self, code, context):
 
