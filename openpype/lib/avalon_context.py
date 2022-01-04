@@ -841,6 +841,7 @@ def collect_last_version_repres(asset_entities):
     return output
 
 
+@with_avalon
 def get_loaders_by_name():
 
     loaders_by_name = {}
