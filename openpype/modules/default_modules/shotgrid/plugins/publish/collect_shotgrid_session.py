@@ -19,6 +19,8 @@ class CollectShotgridSession(pyblish.api.ContextPlugin):
     label = "Shotgrid user session"
 
     def process(self, context):
+        set_shotgrid_certificate()
+
         avalon_project = os.getenv("AVALON_PROJECT")
 
         shotgrid_settings = get_shotgrid_settings(avalon_project)
@@ -49,6 +51,21 @@ class CollectShotgridSession(pyblish.api.ContextPlugin):
 
         self.log.info("Logged to shotgrid {} with user {}".format(shotgrid_url, login))
         context.data['shotgridSession'] = session
+
+
+def get_shotgrid_certificate():
+    shotgun_api_path = os.path.dirname(shotgun_api3.__file__)
+    certificate_path = os.path.join( shotgun_api_path, "lib", "certifi", "cacert.pem")
+    if not os.path.exists(certificate_path):
+        raise FileExistsError("Could not find certificate in shotgun_api3: \
+            {}".format(certificate_path))
+    return certificate_path
+
+
+def set_shotgrid_certificate():
+    if not os.getenv("SHOTGUN_API_CACERTS"):
+        certificate = get_shotgrid_certificate()
+        os.environ["SHOTGUN_API_CACERTS"] = certificate
 
 
 def get_shotgrid_settings(project):
