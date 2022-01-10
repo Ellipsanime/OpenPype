@@ -177,6 +177,8 @@
             "authorized_plugins": []
         },
         "ValidateRenderSettings": {
+            "enabled": true,
+            "optional": true,
             "arnold_render_attributes": [],
             "vray_render_attributes": [],
             "redshift_render_attributes": [],
