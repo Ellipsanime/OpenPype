@@ -1,20 +1,19 @@
-import sys
 import os
 from typing import Any
 
-from openpype.modules.default_modules.shotgrid.tray.credential_dialog import (
-    CredentialsDialog,
-)
+import webview
+from Qt import QtWidgets
+
+from openpype.modules.default_modules.shotgrid.lib import credentials
 from openpype.modules.default_modules.shotgrid.tray.batch_dialog import (
     BatchDialog,
+)
+from openpype.modules.default_modules.shotgrid.tray.credential_dialog import (
+    CredentialsDialog,
 )
 from openpype.modules.default_modules.shotgrid.tray.manager_api import (
     ManagerApi,
 )
-from openpype.modules.default_modules.shotgrid.lib import credentials
-
-from Qt import QtWidgets
-import webview
 
 
 class ShotgridTrayWrapper:
