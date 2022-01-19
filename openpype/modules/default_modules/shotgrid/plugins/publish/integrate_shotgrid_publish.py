@@ -12,11 +12,8 @@ class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
     def process(self, instance):
 
         context = instance.context
-        sg = context.data.get("shotgridSession")
 
-        subset_id = context.data.get("subsetEntity", {}).get("_id")
-
-        version_id = context.data.get("versionEntity", {}).get("_id")
+        self.sg = context.data.get("shotgridSession")
 
         shotgrid_version = instance.data.get("shotgridVersion")
 
@@ -35,11 +32,61 @@ class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
                 "path": {"local_path": local_path}
             }
 
-            sg_pub_file = sg.create("PublishedFile", published_file_data)
+            published_file = self._find_existing_publish(
+                code,
+                context,
+                shotgrid_version
+            )
+
+            if not published_file:
+                publish_file = self._create_published(published_file_data)
+                self.log.info(
+                    "Create Shotgrid PublishedFile: {}".format(publish_file)
+                )
+            else:
+                self.sg.update(
+                    published_file["type"],
+                    published_file["id"],
+                    published_file_data
+                )
+                self.log.info(
+                    "Update Shotgrid PublishedFile: {}".format(published_file)
+                )
 
             if "shotgridreview" in representation.get("tags", []):
-                self.log.info("Upload review: {} for version shotgrid {}".format(local_path, shotgrid_version.get("id")))
-                sg.upload("Version", shotgrid_version.get("id"), local_path, field_name="sg_uploaded_movie")
+                self.log.info(
+                    "Upload review: {} for version shotgrid {}".format(
+                        local_path, shotgrid_version.get("id"))
+                )
+                self.sg.upload(
+                    "Version",
+                    shotgrid_version.get("id"),
+                    local_path,
+                    field_name="sg_uploaded_movie"
+                )
 
-            instance.data["shotgridPublishedFile"] = sg_pub_file
-            self.log.info("Created Shotgrid PublishedFile: {}".format(sg_pub_file))
+
+            if published_file:
+                self.sg.upload_thumbnail(
+                    published_file["type"],
+                    published_file["id"],
+                    local_path
+                )
+
+            instance.data["shotgridPublishedFile"] = published_file
+            self.log.info("Created Shotgrid PublishedFile: {}".format(published_file))
+
+    def _find_existing_publish(self, code, context, shotgrid_version):
+
+        filters = [
+            ["project", "is", context.data.get("shotgridProject")],
+            ["task", "is", context.data.get("shotgridTask")],
+            ["entity", "is", context.data.get("shotgridEntity")],
+            ["version", "is", shotgrid_version],
+            ["code", "is", code],
+        ]
+        return self.sg.find_one("PublishedFile", filters, [])
+
+    def _create_published(self, published_file_data):
+
+        return self.sg.create("PublishedFile", published_file_data)
