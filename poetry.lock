@@ -1345,6 +1345,27 @@ gtk = ["pygobject"]
 qt = ["pyqt5", "pyqtwebengine"]
 
 [[package]]
+name = "pywebview"
+version = "3.5"
+description = "Build GUI for your Python program with JavaScript, HTML, and CSS."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+proxy_tools = "*"
+pyobjc-core = {version = "*", markers = "sys_platform == \"darwin\""}
+pyobjc-framework-Cocoa = {version = "*", markers = "sys_platform == \"darwin\""}
+pyobjc-framework-WebKit = {version = "*", markers = "sys_platform == \"darwin\""}
+PyQt5 = {version = "*", markers = "sys_platform == \"openbsd6\""}
+pythonnet = {version = "*", markers = "sys_platform == \"win32\""}
+
+[package.extras]
+cef = ["cefpython3"]
+gtk = ["pygobject"]
+qt = ["pyqt5", "pyqtwebengine"]
+
+[[package]]
 name = "pywin32"
 version = "301"
 description = "Python for Window Extensions"
