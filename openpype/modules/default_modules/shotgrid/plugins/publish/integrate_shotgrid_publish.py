@@ -39,9 +39,9 @@ class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
             )
 
             if not published_file:
-                publish_file = self._create_published(published_file_data)
+                published_file = self._create_published(published_file_data)
                 self.log.info(
-                    "Create Shotgrid PublishedFile: {}".format(publish_file)
+                    "Create Shotgrid PublishedFile: {}".format(published_file)
                 )
             else:
                 self.sg.update(
@@ -65,8 +65,7 @@ class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
                     field_name="sg_uploaded_movie"
                 )
 
-
-            if published_file:
+            if instance.data["family"] == 'image':
                 self.sg.upload_thumbnail(
                     published_file["type"],
                     published_file["id"],
@@ -74,7 +73,6 @@ class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
                 )
 
             instance.data["shotgridPublishedFile"] = published_file
-            self.log.info("Created Shotgrid PublishedFile: {}".format(published_file))
 
     def _find_existing_publish(self, code, context, shotgrid_version):
 

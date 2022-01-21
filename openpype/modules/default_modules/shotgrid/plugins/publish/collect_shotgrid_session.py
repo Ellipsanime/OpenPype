@@ -19,15 +19,21 @@ class CollectShotgridSession(pyblish.api.ContextPlugin):
     label = "Shotgrid user session"
 
     def process(self, context):
+
         certificate_path = os.getenv("SHOTGUN_API_CACERTS")
-        if not os.path.exists(certificate_path):
+        if certificate_path is None or not os.path.exists(certificate_path):
+            self.log.info("SHOTGUN_API_CACERTS does not contains a valid \
+                path: {}".format(certificate_path))
             certificate_path = get_shotgrid_certificate()
+            self.log.info("Get Certificate from shotgrid_api")
 
         if not os.path.exists(certificate_path):
             self.log.error("Could not find certificate in shotgun_api3: \
                 {}".format(certificate_path))
+            return
 
         set_shotgrid_certificate(certificate_path)
+        self.log.info("Set Certificate: {}".format(certificate_path))
 
         avalon_project = os.getenv("AVALON_PROJECT")
 
