@@ -1,7 +1,5 @@
 import os
 import pyblish.api
-import pprint
-
 
 class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
     """ Commit components to server. """
