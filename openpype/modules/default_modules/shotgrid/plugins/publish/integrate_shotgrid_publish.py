@@ -1,10 +1,5 @@
 import os
 import pyblish.api
-<<<<<<< HEAD
-import pprint
-
-=======
->>>>>>> origin/add_shotgun_module
 
 class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
     """ Commit components to server. """
@@ -68,12 +63,7 @@ class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
                     field_name="sg_uploaded_movie"
                 )
 
-<<<<<<< HEAD
-
-            if published_file:
-=======
             if instance.data["family"] == 'image':
->>>>>>> origin/add_shotgun_module
                 self.sg.upload_thumbnail(
                     published_file["type"],
                     published_file["id"],
@@ -81,10 +71,6 @@ class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
                 )
 
             instance.data["shotgridPublishedFile"] = published_file
-<<<<<<< HEAD
-            self.log.info("Created Shotgrid PublishedFile: {}".format(published_file))
-=======
->>>>>>> origin/add_shotgun_module
 
     def _find_existing_publish(self, code, context, shotgrid_version):
 
