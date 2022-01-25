@@ -30,6 +30,13 @@ class CollectWorkfile(pyblish.api.ContextPlugin):
             "asset": os.environ["AVALON_ASSET"]
         })
 
+        families_whitelist = os.getenv("PYBLISH_FAMILY_WHITELIST", [])
+        if families_whitelist:
+            if 'workfile' not in families_whitelist.split(','):
+                self.log.info("Skipped instance with not whitelisted "
+                              "family: {}".format('workfile'))
+                return
+
         # creating representation
         _, ext = os.path.splitext(file_path)
         instance.data["representations"].append({

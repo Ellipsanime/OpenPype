@@ -1,5 +1,5 @@
 import pyblish.api
-
+import os
 from avalon import photoshop
 
 
@@ -25,9 +25,16 @@ class CollectInstances(pyblish.api.ContextPlugin):
         layers = stub.get_layers()
         layers_meta = stub.get_layers_metadata()
         instance_names = []
+
+        families_whitelist = os.getenv("PYBLISH_FAMILY_WHITELIST", [])
+        if families_whitelist:
+            families_whitelist = families_whitelist.split(',')
+            self.log.info("Whitelisted families : {}".format(
+                families_whitelist))
+
         for layer in layers:
             layer_data = stub.read(layer, layers_meta)
-
+            print("DATA :", layer_data)
             # Skip layers without metadata.
             if layer_data is None:
                 continue
@@ -41,6 +48,11 @@ class CollectInstances(pyblish.api.ContextPlugin):
             # if not child_layers:
             #     self.log.info("%s skipped, it was empty." % layer.Name)
             #     continue
+
+            if layer_data['family'] not in families_whitelist:
+                self.log.info("Skipped. Instance family not whitelisted "
+                              "({})".format(layer_data['family']))
+                continue
 
             instance = context.create_instance(layer_data["subset"])
             instance.append(layer)
