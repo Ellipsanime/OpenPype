@@ -85,9 +85,9 @@ class ValidateFrameRange(pyblish.api.InstancePlugin):
         Repair instance container to match asset data.
         """
         cmds.setAttr(
-            "{}.frameStart".format(instance.data["name"]),
+            "defaultRenderGlobals.startFrame",
             instance.context.data.get("frameStartHandle"))
 
         cmds.setAttr(
-            "{}.frameEnd".format(instance.data["name"]),
+            "defaultRenderGlobals.endFrame",
             instance.context.data.get("frameEndHandle"))
