@@ -15,6 +15,12 @@ class CollectReview(pyblish.api.ContextPlugin):
         task = os.getenv("AVALON_TASK", None)
         subset = family + task.capitalize()
 
+        families_whitelist = os.getenv("PYBLISH_FAMILY_WHITELIST", [])
+        if families_whitelist:
+            if 'review' not in families_whitelist.split(','):
+                self.log.info("Skipped instance with not whitelisted "
+                              "family: {}".format('review'))
+                return
         file_path = context.data["currentFile"]
         base_name = os.path.basename(file_path)
 

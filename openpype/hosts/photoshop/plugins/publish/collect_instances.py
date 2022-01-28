@@ -48,11 +48,11 @@ class CollectInstances(pyblish.api.ContextPlugin):
             # if not child_layers:
             #     self.log.info("%s skipped, it was empty." % layer.Name)
             #     continue
-
-            if layer_data['family'] not in families_whitelist:
-                self.log.info("Skipped. Instance family not whitelisted "
-                              "({})".format(layer_data['family']))
-                continue
+            if families_whitelist:
+                if layer_data['family'] not in families_whitelist:
+                    self.log.info("Skipped. Instance family not whitelisted "
+                                  "({})".format(layer_data['family']))
+                    continue
 
             instance = context.create_instance(layer_data["subset"])
             instance.append(layer)
