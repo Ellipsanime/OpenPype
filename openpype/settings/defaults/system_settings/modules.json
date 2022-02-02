@@ -13,7 +13,7 @@
         }
     },
     "ftrack": {
-        "enabled": true,
+        "enabled": false,
         "ftrack_server": "",
         "ftrack_actions_path": {
             "windows": [],
@@ -136,6 +136,11 @@
                 }
             }
         }
+    },
+    "shotgrid": {
+        "enabled": true,
+        "module_server_url": "",
+        "shotgrid_settings": {}
     },
     "timers_manager": {
         "enabled": true,

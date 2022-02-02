@@ -111,6 +111,7 @@ class ProcessSubmittedJobOnFarm(pyblish.api.InstancePlugin):
                   "celaction": [r".*"]}
 
     enviro_filter = [
+        "OPENPYPE_SG_USER",
         "FTRACK_API_USER",
         "FTRACK_API_KEY",
         "FTRACK_SERVER",
@@ -225,8 +226,10 @@ class ProcessSubmittedJobOnFarm(pyblish.api.InstancePlugin):
         environment["AVALON_APP_NAME"] = os.environ.get("AVALON_APP_NAME")
         environment["OPENPYPE_LOG_NO_COLORS"] = "1"
         environment["OPENPYPE_USERNAME"] = instance.context.data["user"]
+        environment["OPENPYPE_SG_USER"] = os.getenv("OPENPYPE_SG_USER")
         environment["OPENPYPE_PUBLISH_JOB"] = "1"
         environment["OPENPYPE_RENDER_JOB"] = "0"
+
 
         args = [
             'publish',
