@@ -3,7 +3,7 @@
 """
 
 from avalon import api
-
+from avalon.maya.pipeline import containerise
 
 class SetFrameRangeLoader(api.Loader):
     """Specific loader of Alembic for the avalon.animation family"""
@@ -101,29 +101,41 @@ class ImportMayaLoader(api.Loader):
         from avalon import maya
         from avalon.maya import lib
 
-        choice = self.display_warning()
-        if choice is False:
-            return
+        if data.get("display_warning", True):
+            choice = self.display_warning()
+            if choice is False:
+                return
 
         asset = context['asset']
 
-        namespace = namespace or lib.unique_namespace(
-            asset["name"] + "_",
-            prefix="_" if asset["name"][0].isdigit() else "",
-            suffix="_",
-        )
+        additional_args = {}
+        namespace = ""
+        if not data.get("attach_to_root", False):
+            namespace = namespace or lib.unique_namespace(
+                asset["name"] + "_",
+                prefix="_" if asset["name"][0].isdigit() else "",
+                suffix="_",
+            )
+            additional_args["namespace"] = namespace
+            additional_args["groupReference"] = True
+            additional_args["groupName"] = "{}:{}".format(namespace, name)
 
+        new_nodes = None
         with maya.maintained_selection():
-            cmds.file(self.fname,
-                      i=True,
-                      preserveReferences=True,
-                      namespace=namespace,
-                      returnNewNodes=True,
-                      groupReference=True,
-                      groupName="{}:{}".format(namespace, name))
+            new_nodes = cmds.file(self.fname,
+                                  i=True,
+                                  preserveReferences=True,
+                                  returnNewNodes=True,
+                                  **additional_args)
 
         # We do not containerize imported content, it remains unmanaged
-        return
+        return containerise(
+            name=name,
+            namespace=namespace,
+            nodes=new_nodes,
+            context=context,
+            loader=self.__class__.__name__
+        )
 
     def display_warning(self):
         """Show warning to ensure the user can't import models by accident
