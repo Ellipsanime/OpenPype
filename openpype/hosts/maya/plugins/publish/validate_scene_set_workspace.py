@@ -33,6 +33,7 @@ class ValidateSceneSetWorkspace(pyblish.api.ContextPlugin):
     category = 'scene'
     version = (0, 1, 0)
     label = 'Maya Workspace Set'
+    optional = True
 
     def process(self, context):
 
