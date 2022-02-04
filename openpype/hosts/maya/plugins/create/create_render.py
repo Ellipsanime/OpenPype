@@ -455,10 +455,6 @@ class CreateRender(plugin.Creator):
         if renderer == "vray":
             self._set_vray_settings(asset)
         if renderer == "redshift":
-            _ = self._set_renderer_option(
-                "RedshiftOptions", "{}.imageFormat", 1
-            )
-
             # resolution
             cmds.setAttr(
                 "defaultResolution.width",
