@@ -328,8 +328,7 @@ class ValidateRenderSettings(pyblish.api.InstancePlugin):
                 rs_aovs = cmds.ls(type="RedshiftAOV", referencedNodes=False)
                 for aov in rs_aovs:
                     # fix AOV prefixes
-                    cmds.setAttr(
-                        "{}.filePrefix".format(aov), redshift_AOV_prefix)
+                    cmds.setAttr("{}.filePrefix".format(aov), redshift_AOV_prefix, type="string")
                     # fix AOV file format
                     default_ext = cmds.getAttr(
                         "redshiftOptions.imageFormat", asString=True)
