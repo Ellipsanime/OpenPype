@@ -1,17 +1,16 @@
 from openpype.lib.abstract_template_loader import AbstractTemplateLoader, AbstractPlaceholder
-from avalon import photoshop
+from . import stub as PhotoshopStub
 import tempfile
 
 
 class PhotoshopTemplateLoader(AbstractTemplateLoader):
     def import_template(self, template_path):
         print("Looking for ", template_path)
-        stub = photoshop.stub()
+        stub = PhotoshopStub()
         stub.open(template_path)
         # Save as temp file
         path = tempfile.NamedTemporaryFile().name
         stub.saveAs(image_path=path, ext='psd', as_copy=False)
-
 
     def get_loaded_containers_by_id(self):
         return super().get_loaded_containers_by_id()
