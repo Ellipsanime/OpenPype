@@ -24,7 +24,7 @@ class PhotoshopTemplateLoader(AbstractTemplateLoader):
         placeholder_layer = stub.get_layer(placeholder.data['node']['uuid'])
         stub.select_layers([placeholder_layer])
 
-    def postload(self, placeholder, container):
+    def load_succeed(self, placeholder, container):
         pass
 
 class PhotoshopPlaceholder(AbstractPlaceholder):
