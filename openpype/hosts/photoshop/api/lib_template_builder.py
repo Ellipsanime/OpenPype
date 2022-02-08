@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from . import stub
+from . import stub as PhotoshopStub
 from avalon.vendor import qargparse
 import os
 from openpype.tools.utils.widgets import OptionDialog
@@ -7,12 +7,13 @@ from openpype.tools.utils.widgets import OptionDialog
 
 # To change as enum
 build_types = ["context_asset", "linked_asset", "all_assets"]
-stub = stub()
+stub = PhotoshopStub()
+
 
 def get_placeholder_attributes(node):
-    return {
-        attr: cmds.getAttr("{}.{}".format(node, attr))
-        for attr in cmds.listAttr(node, userDefined=True)}
+    layers_by_id = stub.get_layers_metadata()
+    return layers_by_id[str(node.id)]
+
 
 def create_placeholder():
     args, _ = placeholder_window()
@@ -23,67 +24,59 @@ def create_placeholder():
 
     if not options:
         return   # operation canceled, no locator created
+
+    placeholder = stub.create_group('_TEMPLATE_PLACEHOLDER_')
+
     options.update({
         "id": "pyblish.avalon.instance",
         "family": "placeholder",
         "asset": os.environ.get("AVALON_ASSET", ""),
         "subset": "TEMPLATE_PLACEHOLDER",
         "active": False,
-        "uuid": "999",
+        "uuid": placeholder.id,
         "long_name": ""
     })
-
-    placeholder = stub.create_group('_TEMPLATE_PLACEHOLDER_')
     # custom arg parse to force empty data query
     # and still imprint them on placeholder
     # and getting items when arg is of type Enumerator
     stub.imprint(placeholder, options)
     # Some tweaks because imprint force enums to to default value so we get
     # back arg read and force them to attributes
-    imprint_enum(placeholder, args)
-
-    # # Add helper attributes to keep placeholder info
-    # cmds.addAttr(
-    #     placeholder, longName="parent",
-    #     hidden=True, dataType="string")
-    # cmds.addAttr(
-    #     placeholder, longName="index",
-    #     hidden=True, attributeType="short",
-    #     defaultValue=-1)
+    #imprint_enum(placeholder, args)
 
 
-# def update_placeholder():
-#     placeholder = cmds.ls(selection=True)
-#     if len(placeholder) == 0:
-#         raise ValueError("No node selected")
-#     if len(placeholder) > 1:
-#         raise ValueError("Too many selected nodes")
-#     placeholder = placeholder[0]
+def update_placeholder():
+    placeholder = stub.get_selected_layers()
+    if len(placeholder) == 0:
+        raise ValueError("No node selected")
+    if len(placeholder) > 1:
+        raise ValueError("Too many selected nodes")
+    placeholder = placeholder[0]
 
-#     args = placeholder_window(get_placeholder_attributes(placeholder))
-#     if not args:
-#         return  # operation canceled
+    args = placeholder_window(get_placeholder_attributes(placeholder))
+    if not args:
+        return  # operation canceled
 
-#     options = {str(arg): arg._data.get("items") or arg.read()
-#                for arg in args if not type(arg) == qargparse.Separator}
-#     imprint(placeholder, options)
-#     imprint_enum(placeholder, args)
+    options = {str(arg): arg._data.get("items") or arg.read()
+               for arg in args if not type(arg) == qargparse.Separator}
+    imprint(placeholder, options)
+    #imprint_enum(placeholder, args)
 
 
-# def imprint_enum(placeholder, args):
-#     """
-#     Imprint method doesn't act properly with enums.
-#     Replacing the functionnality with this for now
-#     """
-#     enum_values = {str(arg): arg.read()
-#                    for arg in args if arg._data.get("items")}
-#     string_to_value_enum_table = {
-#         build: i for i, build
-#         in enumerate(build_types)}
-#     for key, value in enum_values.items():
-#         cmds.setAttr(
-#             placeholder + "." + key,
-#             string_to_value_enum_table[value])
+def imprint_enum(placeholder, args):
+    """
+    Imprint method doesn't act properly with enums.
+    Replacing the functionnality with this for now
+    """
+    enum_values = {str(arg): arg.read()
+                   for arg in args if arg._data.get("items")}
+    string_to_value_enum_table = {
+        build: i for i, build
+        in enumerate(build_types)}
+    for key, value in enum_values.items():
+        cmds.setAttr(
+            placeholder + "." + key,
+            string_to_value_enum_table[value])
 
 
 def placeholder_window(options=None):
