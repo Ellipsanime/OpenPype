@@ -18,6 +18,7 @@ def get_placeholder_attributes(node):
 def create_placeholder():
     args, _ = placeholder_window()
     options = OrderedDict()
+    rewrite_enum_options(options, args)
     for arg in args:
         if not type(arg) == qargparse.Separator:
             options[str(arg)] = arg._data.get("items") or arg.read()
@@ -26,7 +27,6 @@ def create_placeholder():
         return   # operation canceled, no locator created
 
     placeholder = stub.create_group('_TEMPLATE_PLACEHOLDER_')
-
     options.update({
         "id": "pyblish.avalon.instance",
         "family": "placeholder",
@@ -39,10 +39,8 @@ def create_placeholder():
     # custom arg parse to force empty data query
     # and still imprint them on placeholder
     # and getting items when arg is of type Enumerator
+    rewrite_enum_options(options, args)
     stub.imprint(placeholder, options)
-    # Some tweaks because imprint force enums to to default value so we get
-    # back arg read and force them to attributes
-    #imprint_enum(placeholder, args)
 
 
 def update_placeholder():
@@ -59,24 +57,26 @@ def update_placeholder():
 
     options = {str(arg): arg._data.get("items") or arg.read()
                for arg in args if not type(arg) == qargparse.Separator}
-    imprint(placeholder, options)
-    #imprint_enum(placeholder, args)
+    options.update({
+        "id": "pyblish.avalon.instance",
+        "family": "placeholder",
+        "asset": os.environ.get("AVALON_ASSET", ""),
+        "subset": "TEMPLATE_PLACEHOLDER",
+        "active": False,
+        "uuid": placeholder.id,
+        "long_name": ""
+    })
+    rewrite_enum_options(options, args)
+    stub.imprint(placeholder, options)
 
 
-def imprint_enum(placeholder, args):
+def rewrite_enum_options(options, args):
     """
     Imprint method doesn't act properly with enums.
     Replacing the functionnality with this for now
     """
-    enum_values = {str(arg): arg.read()
-                   for arg in args if arg._data.get("items")}
-    string_to_value_enum_table = {
-        build: i for i, build
-        in enumerate(build_types)}
-    for key, value in enum_values.items():
-        cmds.setAttr(
-            placeholder + "." + key,
-            string_to_value_enum_table[value])
+    options.update({str(arg): arg.read() for arg in args
+                    if isinstance(arg, qargparse.Enum)})
 
 
 def placeholder_window(options=None):
