@@ -321,4 +321,5 @@ __all__ = [
     "is_current_version_studio_latest",
 
     "AbstractPlaceholder",
-    "AbstractTemplateLoader"]
+    "AbstractTemplateLoader"
+]

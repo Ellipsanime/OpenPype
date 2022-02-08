@@ -34,7 +34,36 @@ def deferred():
         cmds.menuItem(
             "Build First Workfile",
             parent=pipeline._menu,
-            command=lambda *args: BuildWorkfile().process()
+            command=lambda *args: BuildWorkfileTemplate().process()
+        )
+
+    def add_build_template_workfiles_item():
+        _builder_menu = cmds.menuItem(
+            "Template Builder",
+            subMenu=True,
+            tearOff=True,
+            parent=pipeline._menu
+        )
+        cmds.menuItem(
+            "Build Workfile from template",
+            parent=_builder_menu,
+            command=build_workfile_template
+        )
+        cmds.menuItem(
+            "Update Workfile from template",
+            parent=_builder_menu,
+            command=update_workfile_template
+        )
+        cmds.menuItem(divider=True)
+        cmds.menuItem(
+            "Create Placeholder",
+            parent=_builder_menu,
+            command=lambda *args: create_placeholder()
+        )
+        cmds.menuItem(
+            "Update Placeholder",
+            parent=_builder_menu,
+            command=lambda *args: update_placeholder()
         )
 
     def add_build_template_workfiles_item():

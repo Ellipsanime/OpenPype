@@ -1,63 +1,52 @@
 from collections import OrderedDict
-import maya.cmds as cmds
-from avalon.maya.lib import imprint
+from . import stub as PhotoshopStub
 from avalon.vendor import qargparse
+import os
 from openpype.tools.utils.widgets import OptionDialog
-from avalon.maya.pipeline import get_main_window
+# from avalon.maya.pipeline import get_main_window
 
 # To change as enum
 build_types = ["context_asset", "linked_asset", "all_assets"]
+stub = PhotoshopStub()
 
 
 def get_placeholder_attributes(node):
-    return {
-        attr: cmds.getAttr("{}.{}".format(node, attr))
-        for attr in cmds.listAttr(node, userDefined=True)}
-
-
-def delete_placeholder_attributes(node):
-    '''
-    function to delete all extra placeholder attributes
-    '''
-    extra_attributes = get_placeholder_attributes(node)
-    for attribute in extra_attributes:
-        cmds.deleteAttr(node + '.' + attribute)
+    layers_by_id = stub.get_layers_metadata()
+    return layers_by_id[str(node.id)]
 
 
 def create_placeholder():
-    args = placeholder_window()
-
-    if not args:
-        return  # operation canceled, no locator created
-
-    selection = cmds.ls(selection=True)
-    placeholder = cmds.spaceLocator(name="_TEMPLATE_PLACEHOLDER_")[0]
-    if selection:
-        cmds.parent(placeholder, selection[0])
-    # custom arg parse to force empty data query
-    # and still imprint them on placeholder
-    # and getting items when arg is of type Enumerator
+    args, _ = placeholder_window()
     options = OrderedDict()
     for arg in args:
         if not type(arg) == qargparse.Separator:
             options[str(arg)] = arg._data.get("items") or arg.read()
-    imprint(placeholder, options)
+
+    if not options:
+        return   # operation canceled, no locator created
+
+    placeholder = stub.create_group('_TEMPLATE_PLACEHOLDER_')
+
+    options.update({
+        "id": "pyblish.avalon.instance",
+        "family": "placeholder",
+        "asset": os.environ.get("AVALON_ASSET", ""),
+        "subset": "TEMPLATE_PLACEHOLDER",
+        "active": False,
+        "uuid": placeholder.id,
+        "long_name": ""
+    })
+    # custom arg parse to force empty data query
+    # and still imprint them on placeholder
+    # and getting items when arg is of type Enumerator
+    stub.imprint(placeholder, options)
     # Some tweaks because imprint force enums to to default value so we get
     # back arg read and force them to attributes
-    imprint_enum(placeholder, args)
-
-    # Add helper attributes to keep placeholder info
-    cmds.addAttr(
-        placeholder, longName="parent",
-        hidden=True, dataType="string")
-    cmds.addAttr(
-        placeholder, longName="index",
-        hidden=True, attributeType="short",
-        defaultValue=-1)
+    #imprint_enum(placeholder, args)
 
 
 def update_placeholder():
-    placeholder = cmds.ls(selection=True)
+    placeholder = stub.get_selected_layers()
     if len(placeholder) == 0:
         raise ValueError("No node selected")
     if len(placeholder) > 1:
@@ -65,17 +54,13 @@ def update_placeholder():
     placeholder = placeholder[0]
 
     args = placeholder_window(get_placeholder_attributes(placeholder))
-    #delete placeholder attributes
-    delete_placeholder_attributes(placeholder)
     if not args:
         return  # operation canceled
 
-    options = OrderedDict()
-    for arg in args:
-        if not type(arg) == qargparse.Separator:
-            options[str(arg)] = arg._data.get("items") or arg.read()
+    options = {str(arg): arg._data.get("items") or arg.read()
+               for arg in args if not type(arg) == qargparse.Separator}
     imprint(placeholder, options)
-    imprint_enum(placeholder, args)
+    #imprint_enum(placeholder, args)
 
 
 def imprint_enum(placeholder, args):
@@ -96,7 +81,7 @@ def imprint_enum(placeholder, args):
 
 def placeholder_window(options=None):
     options = options or dict()
-    dialog = OptionDialog(parent=get_main_window())
+    dialog = OptionDialog()
     dialog.setWindowTitle("Create Placeholder")
 
     args = [
@@ -118,13 +103,13 @@ Linked asset are looked in avalon database under field "inputLinks"
 """
         ),
         qargparse.String(
-            "family",
-            default=options.get("family", ""),
+            "op_family",
+            default=options.get("op_family", ""),
             label="OpenPype Family",
             placeholder="ex: model, look ..."),
         qargparse.String(
-            "representation",
-            default=options.get("representation", ""),
+            "op_representation",
+            default=options.get("op_representation", ""),
             label="OpenPype Representation",
             placeholder="ex: ma, abc ..."),
         qargparse.String(
@@ -163,14 +148,14 @@ Priority rule is : "lowest is first to load"."""),
         qargparse.Separator(
             "Optional attributes"),
         qargparse.String(
-            "asset",
-            default=options.get("asset", ""),
+            "asset_filter",
+            default=options.get("asset_filter", ""),
             label="Asset filter",
             placeholder="regex filtering by asset name",
             help="Filtering assets by matching field regex to asset's name"),
         qargparse.String(
-            "subset",
-            default=options.get("subset", ""),
+            "subset_filter",
+            default=options.get("subset_filter", ""),
             label="Subset filter",
             placeholder="regex filtering by subset name",
             help="Filtering assets by matching field regex to subset's name"),
@@ -186,4 +171,4 @@ Priority rule is : "lowest is first to load"."""),
     if not dialog.exec_():
         return None
 
-    return args
+    return args, dialog  # <- dialog here is a fix to avoid Garbage collector issue
