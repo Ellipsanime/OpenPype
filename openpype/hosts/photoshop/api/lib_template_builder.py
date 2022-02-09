@@ -17,29 +17,31 @@ def get_placeholder_attributes(node):
 
 def create_placeholder():
     args, _ = placeholder_window()
-    options = OrderedDict()
-    rewrite_enum_options(options, args)
+    data = OrderedDict()
+    rewrite_enum_options(data, args)
     for arg in args:
         if not type(arg) == qargparse.Separator:
-            options[str(arg)] = arg._data.get("items") or arg.read()
+            data[str(arg)] = arg._data.get("items") or arg.read()
 
-    if not options:
+    if not data:
         return   # operation canceled, no locator created
 
     placeholder = stub.create_group('_TEMPLATE_PLACEHOLDER_')
-    options.update({
+
+    # custom arg parse to force empty data query
+    # and still imprint them on placeholder
+    # and getting items when arg is of type Enumerator
+    rewrite_enum_options(data, args)
+    options = {
         "id": "pyblish.avalon.instance",
         "family": "placeholder",
-        "asset": os.environ.get("AVALON_ASSET", ""),
+        "data": data,
+        "asset": "$ASSET",
         "subset": "TEMPLATE_PLACEHOLDER",
         "active": False,
         "uuid": placeholder.id,
         "long_name": ""
-    })
-    # custom arg parse to force empty data query
-    # and still imprint them on placeholder
-    # and getting items when arg is of type Enumerator
-    rewrite_enum_options(options, args)
+    }
     stub.imprint(placeholder, options)
 
 
@@ -55,18 +57,19 @@ def update_placeholder():
     if not args:
         return  # operation canceled
 
-    options = {str(arg): arg._data.get("items") or arg.read()
-               for arg in args if not type(arg) == qargparse.Separator}
-    options.update({
-        "id": "pyblish.avalon.instance",
+    data = {str(arg): arg._data.get("items") or arg.read()
+            for arg in args if not type(arg) == qargparse.Separator}
+    rewrite_enum_options(data, args)
+    options = {
+        "id": "pyblish.avalon.container",
+        "data": data,
         "family": "placeholder",
         "asset": os.environ.get("AVALON_ASSET", ""),
         "subset": "TEMPLATE_PLACEHOLDER",
         "active": False,
         "uuid": placeholder.id,
         "long_name": ""
-    })
-    rewrite_enum_options(options, args)
+    }
     stub.imprint(placeholder, options)
 
 
