@@ -21,14 +21,14 @@ from openpype.lib.build_template_exceptions import (
 
 
 def update_representations(entities, entity):
-    if entity['context']['asset'] not in entities:
-        entities[entity['context']['asset']] = entity
+    if entity['context']['subset'] not in entities:
+        entities[entity['context']['subset']] = entity
     else:
-        current = entities[entity['context']['asset']]
+        current = entities[entity['context']['subset']]
         incomming = entity
-        entities[entity['context']['asset']] = max(
+        entities[entity['context']['subset']] = max(
             current, incomming,
-            key=lambda entity: entity["context"].get("version"))
+            key=lambda entity: entity["context"].get("version", -1))
 
     return entities
 
@@ -166,14 +166,14 @@ class AbstractTemplateLoader:
                 continue
             path = prf['path']
             break
-        else:
+        else:  # IF no template were found (no break happened)
             raise TemplateProfileNotFound(
                 "No matching profile found for task '{}' of type '{}' "
                 "with host '{}'".format(task_name, task_type, host_name)
             )
         if path is None:
             raise TemplateLoadingFailed(
-                "Template path is None.\n"
+                "Template path is not set.\n"
                 "Path need to be set in {}\\Template Workfile Build "
                 "Settings\\Profiles".format(host_name.title()))
         try:
@@ -214,50 +214,56 @@ class AbstractTemplateLoader:
         """
         loaders_by_name = self.loaders_by_name
         current_asset = self.current_asset
-        current_asset_docs = self.current_asset_docs
-
-        linked_asset_docs = get_linked_assets(current_asset_docs)
-        linked_assets = [asset['name'] for asset in linked_asset_docs]
+        linked_assets = [asset['name'] for asset
+                         in get_linked_assets(self.current_asset_docs)]
 
         ignored_ids = ignored_ids or []
-        sorted_placeholders = self.get_sorted_placeholders()
-        for placeholder in sorted_placeholders:
-            placeholder_db_filters = placeholder.convert_to_db_filters(
+        placeholders = self.get_placeholders()
+        for placeholder in placeholders:
+            placeholder_representations = self.get_placeholder_representations(
+                placeholder,
                 current_asset,
-                linked_assets)
-            # get representation by assets
-            for db_filter in placeholder_db_filters:
-                placeholder_representations = list(avalon.io.find(db_filter))
-                placeholder_representations = reduce(
-                    update_representations,
-                    placeholder_representations,
-                    dict()).values()
-                for last_representation in placeholder_representations:
-                    if self.load_data_is_incorrect(
-                            placeholder,
-                            last_representation,
-                            ignored_ids):
-                        continue
+                linked_assets
+            )
+            for representation in placeholder_representations:
 
-                    self.log.info(
-                        "Loading {}_{} with loader {}\n"
-                        "Loader arguments used : {}".format(
-                            last_representation['context']['asset'],
-                            last_representation['context']['subset'],
-                            placeholder.loader,
-                            placeholder.data['loader_args']))
+                self.preload(placeholder, loaders_by_name, representation)
 
-                    self.preload(
-                        placeholder, loaders_by_name, last_representation)
-                    try:
-                        container = self.load(
-                            placeholder, loaders_by_name, last_representation)
-                    except Exception:
-                        self.load_failed(placeholder, last_representation)
-                    else:
-                        self.load_succeed(placeholder, container)
-                    finally:
-                        self.postload(placeholder)
+                if self.load_data_is_incorrect(
+                        placeholder,
+                        representation,
+                        ignored_ids):
+                    continue
+
+                self.log.info(
+                    "Loading {}_{} with loader {}\n"
+                    "Loader arguments used : {}".format(
+                        representation['context']['asset'],
+                        representation['context']['subset'],
+                        placeholder.loader,
+                        placeholder.data['loader_args']))
+
+                try:
+                    container = self.load(
+                        placeholder, loaders_by_name, representation)
+                except Exception:
+                    self.load_failed(placeholder, representation)
+                else:
+                    self.load_succeed(placeholder, container)
+                finally:
+                    self.postload(placeholder)
+
+    def get_placeholder_representations(self, placeholder, current_asset, linked_assets):
+        placeholder_db_filters = placeholder.convert_to_db_filters(
+            current_asset,
+            linked_assets)
+        # get representation by assets
+        for db_filter in placeholder_db_filters:
+            placeholder_representations = list(avalon.io.find(db_filter))
+            for representation in reduce(update_representations,
+                                         placeholder_representations,
+                                         dict()).values():
+                yield representation
 
     def load_data_is_incorrect(
             self, placeholder, last_representation, ignored_ids):
@@ -295,7 +301,7 @@ class AbstractTemplateLoader:
         loaded_containers_ids = self.get_loaded_containers_by_id()
         self.populate_template(ignored_ids=loaded_containers_ids)
 
-    def get_sorted_placeholders(self):
+    def get_placeholders(self):
         placeholder_class = self.placeholder_class
         placeholders = map(placeholder_class, self.get_template_nodes())
         valid_placeholders = filter(placeholder_class.is_valid, placeholders)
@@ -374,18 +380,9 @@ class AbstractPlaceholder:
     def __init__(self, node):
         self.get_data(node)
 
-    @abstractmethod
-    def get_data(self, node):
-        """
-        Collect placeholders information.
-
-        Args:
-            node (AnyNode): A unique node decided by Placeholder implementation
-        """
-        pass
-
     def order(self):
-        """Get placeholder order to sort them by priority
+        """Get placeholder order.
+        Order is used to sort them by priority
         Priority is lowset first, highest last
         (ex:
             1: First to load
@@ -457,5 +454,15 @@ class AbstractPlaceholder:
         Returns:
             dict: a dictionnary describing a filter to look for asset in
                 a database
+        """
+        pass
+
+    @abstractmethod
+    def get_data(self, node):
+        """
+        Collect placeholders information.
+
+        Args:
+            node (AnyNode): A unique node decided by Placeholder implementation
         """
         pass
