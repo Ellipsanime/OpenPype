@@ -1,4 +1,6 @@
-from openpype.lib.abstract_template_loader import AbstractTemplateLoader, AbstractPlaceholder
+import avalon
+from openpype.lib.abstract_template_loader import (
+    AbstractTemplateLoader, AbstractPlaceholder)
 from . import stub as PhotoshopStub
 import tempfile
 
@@ -9,6 +11,15 @@ class PhotoshopTemplateLoader(AbstractTemplateLoader):
     def import_template(self, template_path):
         print("Looking for ", template_path)
         stub.open(template_path)
+        metadatas = stub.get_layers_metadata()
+        all_layers = stub.get_layers()
+
+        for layer_id, data in metadatas.items():
+            if not data.get('asset', '') == '$ASSET':  # Ignore non placeholder
+                continue
+            data['asset'] = avalon.io.Session['AVALON_ASSET']
+            layer = stub.get_layer(layer_id)
+            stub.imprint(layer, data, all_layers=all_layers)
         # Save as temp file
         path = tempfile.NamedTemporaryFile().name
         stub.saveAs(image_path=path, ext='psd', as_copy=False)
@@ -27,6 +38,7 @@ class PhotoshopTemplateLoader(AbstractTemplateLoader):
     def load_succeed(self, placeholder, container):
         pass
 
+
 class PhotoshopPlaceholder(AbstractPlaceholder):
     def parent_in_hierarchy(self, containers):
         return super().parent_in_hierarchy(containers)
@@ -34,7 +46,7 @@ class PhotoshopPlaceholder(AbstractPlaceholder):
     def get_data(self, node):
         layers_by_id = stub.get_layers_metadata()
         print(node)
-        self.data = layers_by_id[str(node['uuid'])]
+        self.data = layers_by_id[str(node['uuid'])]['data']
         self.data["node"] = node
 
     def clean(self):
