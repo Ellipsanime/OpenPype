@@ -1,7 +1,6 @@
 import os
 from typing import Any
 
-import webview
 from Qt import QtWidgets
 
 from openpype.modules.default_modules.shotgrid.lib import credentials
