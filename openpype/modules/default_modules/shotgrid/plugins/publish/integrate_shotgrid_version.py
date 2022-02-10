@@ -34,7 +34,14 @@ class IntegrateShotgridVersion(pyblish.api.InstancePlugin):
             self.log.info("Create Shotgrid version: {}".format(version))
         else:
             self.log.info("Use existing Shotgrid version: {}".format(version))
-            self.sg.update("Version", version['id'], _additional_version_data(context))
+
+        data_to_update = {}
+        status = context.data.get("intent", {}).get("value")
+        if status:
+            data_to_update["sg_status_list"] = status
+
+        self.log.info("Update Shotgrid version with {}".format(data_to_update))
+        self.sg.update("Version", version['id'], data_to_update)
 
         instance.data["shotgridVersion"] = version
 
@@ -57,16 +64,4 @@ class IntegrateShotgridVersion(pyblish.api.InstancePlugin):
             "code": code,
         }
 
-        version_data.update(_additional_version_data(context))
-
         return self.sg.create("Version", version_data)
-
-
-def _additional_version_data(context):
-    data = {}
-
-    status = context.data.get("intent", {}).get("value")
-    if status:
-        data["sg_status_list"] = status
-
-    return data

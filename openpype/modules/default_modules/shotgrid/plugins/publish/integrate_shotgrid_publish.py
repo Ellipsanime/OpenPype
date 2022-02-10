@@ -2,7 +2,11 @@ import os
 import pyblish.api
 
 class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
-    """ Commit components to server. """
+    """
+    Create published Files from representations and add it to version. If
+    representation is tagged add shotgrid review, it will add it in
+    path to movie for a movie file or path to frame for an image sequence.
+    """
 
     order = pyblish.api.IntegratorOrder+0.499
     label = "Shotgrid Published Files"
@@ -18,8 +22,41 @@ class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
         for representation in instance.data.get("representations", []):
 
             local_path = representation.get("published_path")
-
             code = os.path.basename(local_path)
+
+            if "thumbnail" in representation.get("tags", []):
+                continue
+
+            if "shotgridreview" in representation.get("tags", []):
+                self.log.info(
+                    "Upload review: {} for version shotgrid {}".format(
+                        local_path, shotgrid_version.get("id"))
+                )
+                self.sg.upload(
+                    "Version",
+                    shotgrid_version.get("id"),
+                    local_path,
+                    field_name="sg_uploaded_movie"
+                )
+
+                data_path_to = {}
+                if representation["ext"] in ["mov", "avi"]:
+                    data_path_to["sg_path_to_movie"] = local_path
+                elif representation["ext"] in ["jpg", "png", "exr", "tga"]:
+                        data_path_to["sg_path_to_frames"] = local_path
+
+                self.sg.update(
+                    "Version",
+                    shotgrid_version.get("id"),
+                    data_path_to
+                )
+                continue
+
+            published_file = self._find_existing_publish(
+                code,
+                context,
+                shotgrid_version
+            )
 
             published_file_data = {
                 "project": context.data.get("shotgridProject"),
@@ -29,13 +66,6 @@ class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
                 "version": shotgrid_version,
                 "path": {"local_path": local_path}
             }
-
-            published_file = self._find_existing_publish(
-                code,
-                context,
-                shotgrid_version
-            )
-
             if not published_file:
                 published_file = self._create_published(published_file_data)
                 self.log.info(
@@ -49,18 +79,6 @@ class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
                 )
                 self.log.info(
                     "Update Shotgrid PublishedFile: {}".format(published_file)
-                )
-
-            if "shotgridreview" in representation.get("tags", []):
-                self.log.info(
-                    "Upload review: {} for version shotgrid {}".format(
-                        local_path, shotgrid_version.get("id"))
-                )
-                self.sg.upload(
-                    "Version",
-                    shotgrid_version.get("id"),
-                    local_path,
-                    field_name="sg_uploaded_movie"
                 )
 
             if instance.data["family"] == 'image':
