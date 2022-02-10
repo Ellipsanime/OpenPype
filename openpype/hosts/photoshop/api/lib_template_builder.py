@@ -116,6 +116,11 @@ Linked asset are looked in avalon database under field "inputLinks"
             label="OpenPype Representation",
             placeholder="ex: ma, abc ..."),
         qargparse.String(
+            "op_task_name",
+            default=options.get("op_task_name", ""),
+            label="OpenPype Task name",
+            placeholder="line, color ..."),
+        qargparse.String(
             "loader",
             default=options.get("loader", ""),
             label="Loader",
@@ -173,5 +178,5 @@ Priority rule is : "lowest is first to load"."""),
 
     if not dialog.exec_():
         return None
-
-    return args, dialog  # <- dialog here is a fix to avoid Garbage collector issue
+    #  dialog here is a fix to avoid Garbage collector issue
+    return args, dialog

@@ -40,6 +40,9 @@ class PhotoshopTemplateLoader(AbstractTemplateLoader):
 
 
 class PhotoshopPlaceholder(AbstractPlaceholder):
+
+    optional_attributes = {"op_task_name"}
+
     def parent_in_hierarchy(self, containers):
         return super().parent_in_hierarchy(containers)
 
@@ -53,34 +56,35 @@ class PhotoshopPlaceholder(AbstractPlaceholder):
         return super().clean()
 
     def convert_to_db_filters(self, current_asset, linked_asset):
+        filter_base = {
+            "type": "representation",
+            "context.representation": self.data.get('op_representation'),
+            "context.family": self.data.get('op_family'),
+            "context.task.name": self.data.get('op_task_name')
+        }
+
+        filter_base = {key: value for key, value in filter_base.items()
+                       if value is not None}
+
         if self.data['builder_type'] == "context_asset":
-            return [{
-                "type": "representation",
+            return [dict({
                 "context.asset": {
                     "$eq": current_asset, "$regex": self.data['asset_filter']},
                 "context.subset": {"$regex": self.data['subset_filter']},
                 "context.hierarchy": {"$regex": self.data['hierarchy']},
-                "context.representation": self.data['op_representation'],
-                "context.family": self.data['op_family'],
-            }]
+            }, **filter_base)]
 
         elif self.data['builder_type'] == "linked_asset":
-            return [{
-                "type": "representation",
+            return [dict({
                 "context.asset": {
                     "$eq": asset_name, "$regex": self.data['asset_filter']},
                 "context.subset": {"$regex": self.data['subset_filter']},
                 "context.hierarchy": {"$regex": self.data['hierarchy']},
-                "context.representation": self.data['op_representation'],
-                "context.family": self.data['op_family'],
-            } for asset_name in linked_asset]
+            }, **filter_base) for asset_name in linked_asset]
 
         else:
-            return [{
-                "type": "representation",
+            return [dict({
                 "context.asset": {"$regex": self.data['asset_filter']},
                 "context.subset": {"$regex": self.data['subset_filter']},
                 "context.hierarchy": {"$regex": self.data['hierarchy']},
-                "context.representation": self.data['op_representation'],
-                "context.family": self.data['op_family'],
-            }]
+            }, **filter_base)]
