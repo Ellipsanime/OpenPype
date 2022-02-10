@@ -40,6 +40,30 @@ class IntegrateShotgridVersion(pyblish.api.InstancePlugin):
         if status:
             data_to_update["sg_status_list"] = status
 
+        for representation in instance.data.get("representations", []):
+            local_path = representation.get("published_path")
+            code = os.path.basename(local_path)
+
+            if "shotgridreview" in representation.get("tags", []):
+
+                if representation["ext"] in ["mov", "avi"]:
+                    self.log.info(
+                        "Upload review: {} for version shotgrid {}".format(
+                            local_path, version.get("id"))
+                    )
+                    self.sg.upload(
+                        "Version",
+                        version.get("id"),
+                        local_path,
+                        field_name="sg_uploaded_movie"
+                    )
+
+                    data_to_update["sg_path_to_movie"] = local_path
+
+                elif representation["ext"] in ["jpg", "png", "exr", "tga"]:
+                    path_to_frame = local_path.replace("0000", "#")
+                    data_to_update["sg_path_to_frames"] = path_to_frame
+
         self.log.info("Update Shotgrid version with {}".format(data_to_update))
         self.sg.update("Version", version['id'], data_to_update)
 

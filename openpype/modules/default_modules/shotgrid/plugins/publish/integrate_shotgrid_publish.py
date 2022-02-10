@@ -24,35 +24,7 @@ class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
             local_path = representation.get("published_path")
             code = os.path.basename(local_path)
 
-            if "shotgridreview" in representation.get("tags", []):
-
-                data_path_to = {}
-
-                if representation["ext"] in ["mov", "avi"]:
-                    self.log.info(
-                        "Upload review: {} for version shotgrid {}".format(
-                            local_path, shotgrid_version.get("id"))
-                    )
-                    self.sg.upload(
-                        "Version",
-                        shotgrid_version.get("id"),
-                        local_path,
-                        field_name="sg_uploaded_movie"
-                    )
-
-                    data_path_to["sg_path_to_movie"] = local_path
-
-                elif representation["ext"] in ["jpg", "png", "exr", "tga"]:
-                    data_path_to["sg_path_to_frames"] = local_path
-
-                self.sg.update(
-                    "Version",
-                    shotgrid_version.get("id"),
-                    data_path_to
-                )
-                continue
-
-            if "thumbnail" in representation.get("tags", []):
+            if representation.get("tags", []):
                 continue
 
             published_file = self._find_existing_publish(
@@ -84,6 +56,12 @@ class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
                     "Update Shotgrid PublishedFile: {}".format(published_file)
                 )
 
+            if instance.data["family"] == 'image':
+                self.sg.upload_thumbnail(
+                    published_file["type"],
+                    published_file["id"],
+                    local_path
+                )
             instance.data["shotgridPublishedFile"] = published_file
 
     def _find_existing_publish(self, code, context, shotgrid_version):
