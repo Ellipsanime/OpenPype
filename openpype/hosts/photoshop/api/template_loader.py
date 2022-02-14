@@ -29,7 +29,7 @@ class PhotoshopTemplateLoader(AbstractTemplateLoader):
 
     def get_template_nodes(self):
         return [node for _, node in stub.get_layers_metadata().items()
-                if node['family'] == "placeholder"]
+                if node['id'] == "pyblish.avalon.placeholder"]
 
     def preload(self, placeholder, loaders_by_name, last_representation):
         placeholder_layer = stub.get_layer(placeholder.data['node']['uuid'])
