@@ -33,8 +33,8 @@ def create_placeholder():
     # and getting items when arg is of type Enumerator
     rewrite_enum_options(data, args)
     options = {
-        "id": "pyblish.avalon.instance",
-        "family": "placeholder",
+        "id": "pyblish.avalon.placeholder",
+        "family": "image",
         "data": data,
         "asset": "$ASSET",
         "subset": "TEMPLATE_PLACEHOLDER",
@@ -61,9 +61,9 @@ def update_placeholder():
             for arg in args if not type(arg) == qargparse.Separator}
     rewrite_enum_options(data, args)
     options = {
-        "id": "pyblish.avalon.container",
+        "id": "pyblish.avalon.placeholder",
         "data": data,
-        "family": "placeholder",
+        "family": "image",
         "asset": os.environ.get("AVALON_ASSET", ""),
         "subset": "TEMPLATE_PLACEHOLDER",
         "active": False,
