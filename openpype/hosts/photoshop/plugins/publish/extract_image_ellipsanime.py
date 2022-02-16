@@ -43,15 +43,18 @@ class ExtractImageEllipsanime(openpype.api.Extractor):
                     self.log.info(f"Extracted: {extension}")
 
         representations = []
+        instance.data['fps'] = instance.data["name"][-2:]
         for extension, filename in files.items():
-            sheet_number = instance.data["name"][-2:]  # TODO: plz fix this
+
             representations.append({
                 "name": extension,
                 "ext": extension,
                 "files": filename,
                 "stagingDir": staging_dir,
-                "udim": ["{:0>4}".format(sheet_number)]
+                "fps": instance.data["name"][-2:],
+                "resolutionWidth": "1080"
             })
+
         instance.data["representations"] = representations
         instance.data["stagingDir"] = staging_dir
 
