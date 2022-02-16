@@ -32,7 +32,6 @@ class ExtractReview(openpype.api.Extractor):
         self.output_seq_filename = os.path.splitext(
             stub.get_active_document_name())[0] + ".%04d.jpg"
 
-
         layers = self._get_layers_from_image_instances(instance)
         self.log.info("Layers image instance found: {}".format(layers))
 
@@ -153,13 +152,11 @@ class ExtractReview(openpype.api.Extractor):
         return copy_files
 
     def _get_layers_from_image_instances(self, instance):
-        layers = []
-        for image_instance in instance.context:
-            if image_instance.data["family"] != "image":
-                continue
-            layers.append(image_instance[0])
+        stub = photoshop.stub()
+        layers_meta = stub.get_layers_metadata()
+        layers = [stub.get_layer(l.get('uuid')) for l in layers_meta.values() if l and "placeholder" not in l["id"]]
 
-        return sorted(layers)
+        return sorted(l for l in layers if l)
 
     def _saves_flattened_layers(self, staging_dir, layers):
         img_filename = self.output_seq_filename % 0
