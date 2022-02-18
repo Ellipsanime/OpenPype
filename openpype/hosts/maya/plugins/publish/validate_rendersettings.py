@@ -167,6 +167,8 @@ class ValidateRenderSettings(pyblish.api.InstancePlugin):
             rs_aovs = cmds.ls(type="RedshiftAOV", referencedNodes=False)
             for aov in rs_aovs:
                 aov_prefix = cmds.getAttr("{}.filePrefix".format(aov))
+                aov_type = cmds.getAttr("{}.aovType".format(aov))
+                aov_extension_check_ignore_list = ["Cryptomatte"]
                 # check their image prefix
                 if aov_prefix != redshift_AOV_prefix:
                     cls.log.error(("AOV ({}) image prefix is not set "
@@ -183,12 +185,13 @@ class ValidateRenderSettings(pyblish.api.InstancePlugin):
                 default_ext = cmds.getAttr(
                     "redshiftOptions.imageFormat", asString=True)
 
-                if default_ext != aov_ext:
-                    cls.log.error(("AOV file format is not the same "
-                                   "as the one set globally "
-                                   "{} != {}").format(default_ext,
-                                                      aov_ext))
-                    invalid = True
+                if aov_type not in aov_extension_check_ignore_list:
+                    if default_ext != aov_ext:
+                        cls.log.error(("AOV file format is not the same "
+                                    "as the one set globally "
+                                    "{} != {}").format(default_ext,
+                                                        aov_ext))
+                        invalid = True
 
         if renderer == "renderman":
             file_prefix = cmds.getAttr("rmanGlobals.imageFileFormat")
