@@ -56,7 +56,7 @@ class ValidateRenderSettings(pyblish.api.InstancePlugin):
     ImagePrefixTokens = {
 
         'arnold': 'maya/<Scene>/<RenderLayer>/<RenderLayer>{aov_separator}<RenderPass>',  # noqa
-        'redshift': 'maya/<Scene>/<RenderLayer>/<RenderLayer>',
+        'redshift': 'RENDER/<Scene>/<RenderLayer>/<Scene>_<RenderLayer>',
         'vray': 'maya/<Scene>/<Layer>/<Layer>',
         'renderman': '<layer>{aov_separator}<aov>.<f4>.<ext>'  # noqa
     }
@@ -89,6 +89,10 @@ class ValidateRenderSettings(pyblish.api.InstancePlugin):
     VRAY_PREFIX = "maya/<Scene>/<Layer>/<Layer>"
     DEFAULT_PREFIX = "maya/<Scene>/<RenderLayer>/<RenderLayer>_<RenderPass>"
 
+    aov_separator_custom = "."
+    aov_extension_check_ignore_list = ["Cryptomatte"]
+    image_prefix = "RENDER/<Scene>"
+
     def process(self, instance):
 
         invalid = self.get_invalid(instance)
@@ -115,16 +119,16 @@ class ValidateRenderSettings(pyblish.api.InstancePlugin):
                                               layer=layer)
 
         prefix = prefix.replace(
-            "{aov_separator}", instance.data.get("aovSeparator", "_"))
+            "{aov_separator}", cls.aov_separator_custom)
         if not anim_override:
             invalid = True
             cls.log.error("Animation needs to be enabled. Use the same "
                           "frame for start and end to render single frame")
 
-        if not prefix.lower().startswith("maya/<scene>"):
+        if not prefix.startswith(cls.image_prefix):
             invalid = True
-            cls.log.error("Wrong image prefix [ {} ] - "
-                          "doesn't start with: 'maya/<scene>'".format(prefix))
+            cls.log.error("Image prefix is '{}'. "
+                          "It should start with '{}'".format(prefix), cls.image_prefix)
 
         if not re.search(cls.R_LAYER_TOKEN, prefix):
             invalid = True
@@ -149,13 +153,13 @@ class ValidateRenderSettings(pyblish.api.InstancePlugin):
 
             scene_sep = cmds.getAttr(
                 "{}.fileNameRenderElementSeparator".format(node))
-            if scene_sep != instance.data.get("aovSeparator", "_"):
+            if scene_sep != cls.aov_separator_custom:
                 cls.log.error("AOV separator is not set correctly.")
                 invalid = True
 
         if renderer == "redshift":
             redshift_AOV_prefix = cls.redshift_AOV_prefix.replace(
-                "{aov_separator}", instance.data.get("aovSeparator", "_")
+                "{aov_separator}", cls.aov_separator_custom
             )
             if re.search(cls.R_AOV_TOKEN, prefix):
                 invalid = True
@@ -168,14 +172,13 @@ class ValidateRenderSettings(pyblish.api.InstancePlugin):
             for aov in rs_aovs:
                 aov_prefix = cmds.getAttr("{}.filePrefix".format(aov))
                 aov_type = cmds.getAttr("{}.aovType".format(aov))
-                aov_extension_check_ignore_list = ["Cryptomatte"]
                 # check their image prefix
                 if aov_prefix != redshift_AOV_prefix:
                     cls.log.error(("AOV ({}) image prefix is not set "
                                    "correctly {} != {}").format(
                         cmds.getAttr("{}.name".format(aov)),
                         cmds.getAttr("{}.filePrefix".format(aov)),
-                        aov_prefix
+                        redshift_AOV_prefix
                     ))
                     invalid = True
                 # get aov format
@@ -185,7 +188,7 @@ class ValidateRenderSettings(pyblish.api.InstancePlugin):
                 default_ext = cmds.getAttr(
                     "redshiftOptions.imageFormat", asString=True)
 
-                if aov_type not in aov_extension_check_ignore_list:
+                if aov_type not in cls.aov_extension_check_ignore_list:
                     if default_ext != aov_ext:
                         cls.log.error(("AOV file format is not the same "
                                     "as the one set globally "
@@ -222,11 +225,10 @@ class ValidateRenderSettings(pyblish.api.InstancePlugin):
 
         # prefix check
         default_prefix = cls.ImagePrefixTokens[renderer]
-        default_prefix = default_prefix.replace(
-            "{aov_separator}", instance.data.get("aovSeparator", "_"))
-        if prefix.lower() != default_prefix.lower():
-            cls.log.warning("warning: prefix differs from "
-                            "recommended {}".format(
+        if prefix != default_prefix:
+            cls.log.warning("Warning: prefix '{}' differs from "
+                            "recommended '{}'".format(
+                                prefix,
                                 default_prefix))
 
         if padding != cls.DEFAULT_PADDING:
@@ -278,10 +280,10 @@ class ValidateRenderSettings(pyblish.api.InstancePlugin):
         renderer = instance.data['renderer']
         layer_node = instance.data['setMembers']
         redshift_AOV_prefix = cls.redshift_AOV_prefix.replace(
-            "{aov_separator}", instance.data.get("aovSeparator", "_")
+            "{aov_separator}", cls.aov_separator_custom
         )
         default_prefix = cls.ImagePrefixTokens[renderer].replace(
-            "{aov_separator}", instance.data.get("aovSeparator", "_")
+            "{aov_separator}", cls.aov_separator_custom
         )
 
         with lib.renderlayer(layer_node):
@@ -318,11 +320,11 @@ class ValidateRenderSettings(pyblish.api.InstancePlugin):
                     node = vray_settings[0]
 
                 cmds.optionMenuGrp("vrayRenderElementSeparator",
-                                   v=instance.data.get("aovSeparator", "_"))
+                                   v=cls.aov_separator_custom)
                 cmds.setAttr(
                     "{}.fileNameRenderElementSeparator".format(
                         node),
-                    instance.data.get("aovSeparator", "_"),
+                    cls.aov_separator_custom,
                     type="string"
                 )
 
