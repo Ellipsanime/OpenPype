@@ -64,8 +64,8 @@ class PhotoshopPlaceholder(AbstractPlaceholder):
             "context.task.name": self.data.get('op_task_name')
         }
 
-        filter_base = {key: value for key, value in filter_base.items()
-                       if value is not None}
+        filter_base = {key: value for key, value
+                       in filter_base.items() if value}
 
         if self.data['builder_type'] == "context_asset":
             return [dict({
