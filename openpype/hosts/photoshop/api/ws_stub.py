@@ -327,6 +327,19 @@ class PhotoshopServerStub:
             )
         )
 
+    def hide_all_others_layers(self, layers):
+        """hides all layers that are not part of the list or that are not
+        children of this list
+
+        Args:
+            layers (list): list of PSItem
+        """
+        extract_ids = set([ll.id for ll in self.get_layers_in_layers(layers)])
+
+        for layer in self.get_layers():
+            if layer.visible and layer.id not in extract_ids:
+                self.set_visible(layer.id, False)
+
     def get_layers_metadata(self):
         """Reads layers metadata from Headline from active document in PS.
         (Headline accessible by File > File Info)
@@ -430,6 +443,38 @@ class PhotoshopServerStub:
                 'Photoshop.rename_layer',
                 layer_id=layer_id,
                 name=name
+            )
+        )
+
+    def parent_layer(self, layer_name, parent_id):
+        """Renames specific layer by it's id.
+
+        Args:
+            layer_id (int): id of layer to delete
+            name (str): new name
+        """
+        self.websocketserver.call(
+            self.client.call(
+                'Photoshop.parent_layer',
+                layer_name=layer_name,
+                parent_id=parent_id
+            )
+        )
+
+    def move_at(self, layer_name, new_index, adjustement=True):
+        """Renames specific layer by it's id.
+
+        Args:
+            layer_name (str): id of layer to delete
+            new_index (int):
+            adjustement (bool):
+        """
+        self.websocketserver.call(
+            self.client.call(
+                'Photoshop.move_at',
+                layer_name=layer_name,
+                new_index=new_index,
+                adjustement=adjustement
             )
         )
 
