@@ -36,8 +36,9 @@ class PhotoshopTemplateLoader(AbstractTemplateLoader):
         stub.select_layers([placeholder_layer])
 
     def load_succeed(self, placeholder, container):
-        pass
-
+        placeholder_id = placeholder.data['node']['uuid']
+        layer_name = stub.get_layer(container.id).name
+        stub.parent_layer(layer_name, placeholder_id)
 
 class PhotoshopPlaceholder(AbstractPlaceholder):
 
