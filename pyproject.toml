@@ -1,3 +1,6 @@
+[tool.black]
+line-length = 79
+
 [tool.poetry]
 name = "OpenPype"
 version = "3.8.2" # OpenPype
@@ -40,6 +43,7 @@ clique = "1.6.*"
 Click = "^7"
 dnspython = "^2.1.0"
 ftrack-python-api = "2.0.*"
+shotgun_api3 = "^3.*"
 google-api-python-client = "^1.12.8" # sync server google support (should be separate?)
 jsonschema = "^3.2.0"
 keyring = "^22.0.1"
@@ -65,6 +69,8 @@ slack-sdk = "^3.6.0"
 requests = "2.25.1"
 pysftp = "^0.2.9"
 dropbox = "^11.20.0"
+toolz = "^0.11.1"
+shotgun-api3 = {git = "https://github.com/shotgunsoftware/python-api.git", rev = "v3.2.6"}
 
 
 [tool.poetry.dev-dependencies]
@@ -89,6 +95,8 @@ recommonmark = "*"
 wheel = "*"
 enlighten = "*"  # cool terminal progress bars
 toml = "^0.10.2" # for parsing pyproject.toml
+assertpy = "^1.1"
+black = {version = "^21.6b0", allow-prereleases = true}
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/pypeclub/openpype/issues"

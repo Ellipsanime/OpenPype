@@ -10,3 +10,6 @@
 [submodule "openpype/modules/default_modules/ftrack/python2_vendor/ftrack-python-api"]
 	path = openpype/modules/default_modules/ftrack/python2_vendor/ftrack-python-api
 	url = https://bitbucket.org/ftrack/ftrack-python-api.git
+[submodule "openpype/modules/default_modules/shotgrid/melusine_ui"]
+	path = openpype/modules/default_modules/shotgrid/melusine_ui
+	url = https://github.com/Ellipsanime/shotgrid-module-melusine.git

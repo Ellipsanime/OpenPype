@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <!-- CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/darkly/bootstrap.min.css">
+
+    <!-- LOCAL
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    -->
+
+    <link rel="icon" href="../../../../resources/app_icons/favicon.png">
+
+    <title>Shotgrid Manager</title>
+</head>
+<body>
+<nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <a class="nav-item nav-link active" id="nav-batch-tab" data-toggle="tab" href="#nav-batch" role="tab"
+           aria-controls="nav-batch" aria-selected="true">Batch</a>
+        <a class="nav-item nav-link" id="nav-schedule-tab" data-toggle="tab" href="#nav-schedule" role="tab"
+           aria-controls="nav-schedule" aria-selected="false">Schedule</a>
+        <a class="nav-item nav-link" id="nav-monitor-tab" data-toggle="tab" href="#nav-monitor" role="tab"
+           aria-controls="nav-monitor" aria-selected="false">Monitor</a>
+    </div>
+</nav>
+<div class="container mt-4 mx-auto">
+    <div class="tab-content" id="nav-tabContent">
+        <!-- Batch Tab -->
+        <div class="tab-pane fade show active" id="nav-batch" role="tabpanel" aria-labelledby="nav-batch-tab">
+            <div class="container">
+
+                    <div class="mb-3 row">
+                        <label for="selectOpenPypeProject" class="col-sm-3 col-form-label">OpenPype project</label>
+                        <div class="col-sm-4">
+                            <select class="form-control form-control-sm" id="selectOpenPypeProject">
+                                <option value="newproject">new project</option>
+                            </select>
+                        </div>
+                        <button type="button" class="col-sm-1 btn btn-sm btn-primary" id="reloadBatchConf">
+                            reload
+                        </button>
+                    </div>
+                <form action="#" class="needs-validation" id="batchForm" novalidate>
+                    <div class="form-group row">
+                        <label for="shotgridUrl" class="col-sm-2 col-form-label">url</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control form-control-sm" id="shotgridUrl"
+                                   placeholder="http://shotgrid.com"
+                                   required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="shotgridScriptName" class="col-sm-2 col-form-label">script name</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control form-control-sm" id="shotgridScriptName"
+                                   placeholder="Openpype"
+                                   required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="shotgridApiKey" class="col-sm-2 col-form-label">api key</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control form-control-sm" id="shotgridApiKey"
+                                   placeholder="qwerty123456!"
+                                   required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="shotgridProjectId" class="col-sm-2 col-form-label">project Id</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control form-control-sm" id="shotgridProjectId"
+                                   placeholder="255" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="shotgridFieldMapping" class="col-sm-2 col-form-label">field mapping</label>
+                        <div class="col-sm-6">
+                            <textarea class="form-control form-control-sm" id="shotgridFieldMapping"
+                                      placeholder="{}"></textarea>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div class="float-left" id="infoPanel"></div>
+                        <div class="float-right">
+                            <button type="submit" class="btn btn-primary" id="batchBtn">Batch</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Schedule Tab -->
+        <div class="tab-pane fade" id="nav-schedule" role="tabpanel" aria-labelledby="nav-schedule-tab">
+            <div class="container">
+                <form class="">
+                    <div class="form-group row">
+                        <label for="selectOpenPypeProjectSchedule" class="col-sm-3 col-form-label">OpenPype project</label>
+                        <div class="col-sm-6">
+                            <select class="form-control form-control-sm" id="selectOpenPypeProjectSchedule">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="activateScheduling" class="col-sm-2 col-form-label">Activated</label>
+                        <div class="col-sm-6 my-auto">
+                            <div class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" id="activateScheduling">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Monitor Tab -->
+        <div class="tab-pane fade" id="nav-monitor" role="tabpanel" aria-labelledby="nav-monitor-tab">Not yet implemented</div>
+    </div>
+</div>
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<!-- CDN -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+<!-- LOCAL
+<script src="node_modules/jquery/dist/jquery.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1
+        crossorigin="anonymous"></script>
+<script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>-->
+
+<script src="js/manager.js"></script>
+
+</body>
+</html>

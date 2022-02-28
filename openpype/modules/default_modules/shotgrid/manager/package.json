@@ -1,0 +1,17 @@
+{
+  "name": "shotgrid-manager",
+  "version": "1.0.0",
+  "description": "Openpype shotgrid manager interface",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@material/mwc-select": "^0.25.2",
+    "@webcomponents/webcomponentsjs": "^2.6.0",
+    "bootstrap": "^4.0.0",
+    "jquery": "^3.6.0"
+  }
+}
