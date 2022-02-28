@@ -201,6 +201,11 @@
             "validate_collision": true
         },
         "ValidateRenderSettings": {
+            "aov_separator_custom": ".",
+            "image_prefix": "RENDER/<Scene>",
+            "aov_extension_check_ignore_list": [
+                "Cryptomatte"
+            ],
             "arnold_render_attributes": [],
             "vray_render_attributes": [],
             "redshift_render_attributes": [],

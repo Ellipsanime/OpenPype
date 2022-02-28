@@ -188,6 +188,22 @@
             "label": "ValidateRenderSettings",
             "children": [
                 {
+                    "type": "text",
+                    "key": "aov_separator_custom",
+                    "label": "AOV Separator Custom"
+                },
+                {
+                    "type": "text",
+                    "key": "image_prefix",
+                    "label": "Image Prefix"
+                },
+                {
+                    "type": "list",
+                    "key": "aov_extension_check_ignore_list",
+                    "label": "AOV Ignore List (Extension Check)",
+                    "object_type": "text"
+                },
+                {
                     "type": "dict-modifiable",
                     "store_as_list": true,
                     "key": "arnold_render_attributes",
