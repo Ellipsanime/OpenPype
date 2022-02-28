@@ -36,6 +36,9 @@ class CollectInstances(pyblish.api.ContextPlugin):
             if "container" in layer_data["id"]:
                 continue
 
+            if "placeholder" in layer_data["id"]:
+                continue
+
             # child_layers = [*layer.Layers]
             # self.log.debug("child_layers {}".format(child_layers))
             # if not child_layers:

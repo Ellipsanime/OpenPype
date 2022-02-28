@@ -8,7 +8,8 @@ import maya.cmds as cmds
 
 from avalon.maya import pipeline
 
-from openpype.api import BuildWorkfile
+from openpype.api import build_workfile_template, update_workfile_template
+from lib_template_builder import create_placeholder, update_placeholder
 from openpype.settings import get_project_settings
 from openpype.tools.utils import host_tools
 from openpype.hosts.maya.api import lib
@@ -33,7 +34,36 @@ def deferred():
         cmds.menuItem(
             "Build First Workfile",
             parent=pipeline._menu,
-            command=lambda *args: BuildWorkfile().process()
+            command=lambda *args: BuildWorkfileTemplate().process()
+        )
+
+    def add_build_template_workfiles_item():
+        _builder_menu = cmds.menuItem(
+            "Template Builder",
+            subMenu=True,
+            tearOff=True,
+            parent=pipeline._menu
+        )
+        cmds.menuItem(
+            "Build Workfile from template",
+            parent=_builder_menu,
+            command=build_workfile_template
+        )
+        cmds.menuItem(
+            "Update Workfile from template",
+            parent=_builder_menu,
+            command=update_workfile_template
+        )
+        cmds.menuItem(divider=True)
+        cmds.menuItem(
+            "Create Placeholder",
+            parent=_builder_menu,
+            command=lambda *args: create_placeholder()
+        )
+        cmds.menuItem(
+            "Update Placeholder",
+            parent=_builder_menu,
+            command=lambda *args: update_placeholder()
         )
 
     def add_look_assigner_item():
@@ -193,6 +223,7 @@ def deferred():
 
     # add_scripts_menu()
     add_build_workfiles_item()
+    add_build_template_workfiles_item()
     add_look_assigner_item()
     add_experimental_item()
     modify_workfiles()

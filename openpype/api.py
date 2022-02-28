@@ -42,6 +42,11 @@ from .lib.avalon_context import (
     BuildWorkfile
 )
 
+from .lib.build_template import (
+    build_workfile_template,
+    update_workfile_template
+)
+
 from . import resources
 
 from .plugin import (
@@ -74,6 +79,8 @@ __all__ = [
     "get_anatomy_settings",
     "get_environments",
     "get_project_basic_paths",
+    "build_workfile_template",
+    "update_workfile_template",
 
     "SystemSettings",
 
@@ -85,6 +92,7 @@ __all__ = [
     "get_default_components",
     "ApplicationManager",
     "BuildWorkfile",
+    "BuildWorkfileTemplate",
 
     # Resources
     "resources",

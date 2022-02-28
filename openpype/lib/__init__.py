@@ -84,6 +84,8 @@ from .avalon_context import (
     get_hierarchy,
     get_linked_assets,
     get_latest_version,
+    get_loaders_by_name,
+    collect_last_version_repres,
 
     get_workfile_template_key,
     get_workfile_template_key_from_context,
@@ -317,4 +319,7 @@ __all__ = [
     "is_running_from_build",
     "is_running_staging",
     "is_current_version_studio_latest",
+
+    "AbstractPlaceholder",
+    "AbstractTemplateLoader"
 ]
