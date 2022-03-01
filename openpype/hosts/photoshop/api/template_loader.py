@@ -4,6 +4,7 @@ from openpype.lib.abstract_template_loader import (
 from . import stub as PhotoshopStub
 import tempfile
 
+from Qt import QtWidgets
 stub = PhotoshopStub()
 
 
@@ -26,6 +27,18 @@ class PhotoshopTemplateLoader(AbstractTemplateLoader):
 
     def get_loaded_containers_by_id(self):
         return super().get_loaded_containers_by_id()
+
+    def populate_template(self, ignored_ids=None):
+        result = super().populate_template(ignored_ids)
+        #inform user of end of build
+        app = QtWidgets.QApplication.instance()
+        if app is None:
+            # if it does not exist then a QApplication is created
+            app = QtWidgets.QApplication([])
+        QtWidgets.QMessageBox.about(app.activeWindow(), "Build Workfile",
+            "Workfile build completed, remember to save your workfile.")
+
+        return result
 
     def get_template_nodes(self):
         return [node for _, node in stub.get_layers_metadata().items()
