@@ -27,6 +27,14 @@
             "replace_char": "_"
         },
         "ExtractImage": {
+            "enabled": false,
+            "formats": [
+                "png",
+                "jpg"
+            ]
+        },
+        "ExtractImageEllipsanime": {
+            "enabled": true,
             "formats": [
                 "png",
                 "jpg"

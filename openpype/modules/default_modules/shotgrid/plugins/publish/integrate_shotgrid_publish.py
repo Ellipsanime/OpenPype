@@ -39,7 +39,8 @@ class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
                 "entity": context.data.get("shotgridEntity"),
                 "task": context.data.get("shotgridTask"),
                 "version": shotgrid_version,
-                "path": {"local_path": local_path}
+                "path": {"local_path": local_path},
+                "path_cache": local_path
             }
             if not published_file:
                 published_file = self._create_published(published_file_data)

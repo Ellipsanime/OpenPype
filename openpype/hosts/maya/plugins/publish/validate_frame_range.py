@@ -77,7 +77,8 @@ class ValidateFrameRange(pyblish.api.InstancePlugin):
         for e in errors:
             self.log.error(e)
 
-        assert len(errors) == 0, ("Frame range settings are incorrect")
+        if not len(errors) == 0:
+            self.log.warning("Frame range settings are incorrect")
 
     @classmethod
     def repair(cls, instance):

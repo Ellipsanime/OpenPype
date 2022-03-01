@@ -97,3 +97,4 @@ class CreateImage(openpype.api.Creator):
             # reusing existing group, need to rename afterwards
             if not create_group:
                 stub.rename_layer(group.id, stub.PUBLISH_ICON + group.name)
+        return self

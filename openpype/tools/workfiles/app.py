@@ -368,7 +368,7 @@ class FilesWidget(QtWidgets.QWidget):
         filter_input.setPlaceholderText("Filter files..")
         filter_input.textChanged.connect(proxy_model.setFilterFixedString)
 
-        published_checkbox = QtWidgets.QCheckBox("Published", filter_widget)
+        published_checkbox = QtWidgets.QCheckBox("Snapshots", filter_widget)
         published_checkbox.stateChanged.connect(self.on_published_pressed)
 
         # Home Page

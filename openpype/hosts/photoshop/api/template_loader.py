@@ -3,6 +3,7 @@ from openpype.lib.abstract_template_loader import (
     AbstractTemplateLoader, AbstractPlaceholder)
 from . import stub as PhotoshopStub
 import tempfile
+import os
 
 from Qt import QtWidgets
 stub = PhotoshopStub()
@@ -23,6 +24,7 @@ class PhotoshopTemplateLoader(AbstractTemplateLoader):
             stub.imprint(layer, data, all_layers=all_layers)
         # Save as temp file
         path = tempfile.NamedTemporaryFile().name
+        path = os.path.join(os.path.dirname(path), 'untitled')
         stub.saveAs(image_path=path, ext='psd', as_copy=False)
 
     def get_loaded_containers_by_id(self):
