@@ -466,7 +466,7 @@ class IntegrateAssetNew(pyblish.api.InstancePlugin):
                     # TODO 1.) do not count padding in each index iteration
                     # 2.) do not count dst_padding from src_padding before
                     #   index_frame_start check
-                    frame_number = i - collection_start
+                    frame_number = i - collection_start + 1
                     src_padding = src_padding_exp % i
 
                     src_file_name = "{0}{1}{2}".format(

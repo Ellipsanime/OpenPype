@@ -40,6 +40,7 @@ Todo:
 
 """
 import sys
+import os
 from functools import partial
 
 from . import delegate, model, settings, util, view, widgets
@@ -253,7 +254,7 @@ class Window(QtWidgets.QDialog):
         footer_button_play = QtWidgets.QPushButton(
             awesome["play"], footer_widget
         )
-        footer_button_play.setToolTip("Publish")
+        footer_button_play.setToolTip(os.getenv("PYBLISH_TITLE"))
         layout = QtWidgets.QHBoxLayout()
         layout.setContentsMargins(5, 5, 5, 5)
         layout.addWidget(footer_info, 0)

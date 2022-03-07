@@ -179,11 +179,10 @@ class ExtractReview(openpype.api.Extractor):
         with photoshop.maintained_visibility():
             for i, layer in enumerate(layers):
                 self.log.info("Extracting {}".format(layer))
-
-                img_filename = self.output_seq_filename % i
+                img_filename = self.output_seq_filename % (i+1)
                 output_image_path = os.path.join(staging_dir, img_filename)
                 list_img_filename.append(img_filename)
-
+                self.log.info("Output {}".format(output_image_path))
                 with photoshop.maintained_visibility():
                     stub.hide_all_others_layers([layer])
                     stub.saveAs(output_image_path, 'jpg', True)

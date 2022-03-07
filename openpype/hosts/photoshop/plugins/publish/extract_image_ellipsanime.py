@@ -1,5 +1,5 @@
 import os
-
+import re
 import openpype.api
 from openpype.hosts.photoshop import api as photoshop
 
@@ -32,7 +32,15 @@ class ExtractImageEllipsanime(openpype.api.Extractor):
                 file_basename = os.path.splitext(
                     stub.get_active_document_name()
                 )[0]
-                file_basename = file_basename + '.{:0>4}'.format(int(instance.data['name'][-2]))
+                sheet_number = re.search(r'(\d+)$', instance.data["name"])
+                if sheet_number:
+                    sheet_number = sheet_number.group()
+                else:
+                    raise ValueError(
+                        "Sheet '{}' has invalid name, should end with digits".format(instance.data["name"]))
+                padded_sheet_number = "{:0>4}".format(sheet_number)
+                file_basename = file_basename + '.{}'.format(
+                    padded_sheet_number)
 
                 for extension in self.formats:
                     _filename = "{}.{}".format(file_basename, extension)
@@ -43,7 +51,7 @@ class ExtractImageEllipsanime(openpype.api.Extractor):
                     self.log.info(f"Extracted: {extension}")
 
         representations = []
-        instance.data['fps'] = instance.data["name"][-2:]
+        instance.data['fps'] = padded_sheet_number
         for extension, filename in files.items():
 
             representations.append({
@@ -51,7 +59,7 @@ class ExtractImageEllipsanime(openpype.api.Extractor):
                 "ext": extension,
                 "files": filename,
                 "stagingDir": staging_dir,
-                "fps": "{:0>4}".format(instance.data['fps']),
+                "fps": padded_sheet_number,
                 "resolutionWidth": "1080"
             })
 
