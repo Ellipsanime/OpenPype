@@ -1,4 +1,5 @@
 import os
+import re
 import pyblish.api
 
 
@@ -61,7 +62,7 @@ class IntegrateShotgridVersion(pyblish.api.InstancePlugin):
                     data_to_update["sg_path_to_movie"] = local_path
 
                 elif representation["ext"] in ["jpg", "png", "exr", "tga"]:
-                    path_to_frame = local_path.replace("0000", "#")
+                    path_to_frame = re.sub(r'\d{4}', '#', local_path)
                     data_to_update["sg_path_to_frames"] = path_to_frame
 
         self.log.info("Update Shotgrid version with {}".format(data_to_update))

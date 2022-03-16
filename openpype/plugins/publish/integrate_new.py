@@ -370,6 +370,7 @@ class IntegrateAssetNew(pyblish.api.InstancePlugin):
                 template_data["fps"] = fps
 
             files = repre['files']
+            self.log.info(files)
             if repre.get('stagingDir'):
                 stagingdir = repre['stagingDir']
 
@@ -398,7 +399,7 @@ class IntegrateAssetNew(pyblish.api.InstancePlugin):
             if sequence_repre:
                 self.log.debug(
                     "files: {}".format(files))
-                src_collections, remainder = clique.assemble(files)
+                src_collections, remainder = clique.assemble(files, minimum_items=1, patterns=[r'.+\.{}\..+'.format(clique.DIGITS_PATTERN)])
                 self.log.debug(
                     "src_tail_collections: {}".format(str(src_collections)))
                 src_collection = src_collections[0]

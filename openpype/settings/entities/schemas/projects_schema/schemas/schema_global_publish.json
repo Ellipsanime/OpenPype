@@ -558,6 +558,21 @@
         {
             "type": "dict",
             "collapsible": true,
+            "key": "ExtractBurninEllipsanime",
+            "label": "ExtractBurnin [Ellipsanime]",
+            "checkbox_key": "enabled",
+            "is_group": true,
+            "children": [
+                {
+                    "type": "boolean",
+                    "key": "enabled",
+                    "label": "Enabled"
+                }
+            ]
+        },
+        {
+            "type": "dict",
+            "collapsible": true,
             "key": "IntegrateAssetNew",
             "label": "IntegrateAssetNew",
             "is_group": true,

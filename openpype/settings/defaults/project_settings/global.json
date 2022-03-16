@@ -129,7 +129,7 @@
             ]
         },
         "ExtractBurnin": {
-            "enabled": true,
+            "enabled": false,
             "options": {
                 "font_size": 42,
                 "font_color": [
@@ -173,6 +173,9 @@
                     }
                 }
             ]
+        },
+        "ExtractBurninEllipsanime": {
+            "enabled": true
         },
         "IntegrateAssetNew": {
             "template_name_profiles": [

@@ -52,7 +52,15 @@ class ExtractImageEllipsanime(openpype.api.Extractor):
 
         representations = []
         instance.data['fps'] = padded_sheet_number
-        for extension, filename in files.items():
+        #FIXME: fix using instance.context.data stuff or collector or whatever
+        layers_meta = stub.get_layers_metadata()
+        layers = [
+            stub.get_layer(layer.get('uuid')) for layer in layers_meta.values()
+            if layer and "placeholder" not in layer["id"]
+        ]
+        layers = [layer for layer in layers if layer]
+        number_of_images = len(layers)
+        for i, (extension, filename) in enumerate(files.items()):
 
             representations.append({
                 "name": extension,
@@ -60,7 +68,10 @@ class ExtractImageEllipsanime(openpype.api.Extractor):
                 "files": filename,
                 "stagingDir": staging_dir,
                 "fps": padded_sheet_number,
-                "resolutionWidth": "1080"
+                "resolutionWidth": "1080",
+                "frameEnd": number_of_images,
+                "currentFrame": int(sheet_number),
+                "tags": ["burnin"]
             })
 
         instance.data["representations"] = representations
