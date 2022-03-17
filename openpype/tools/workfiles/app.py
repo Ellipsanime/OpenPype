@@ -420,6 +420,8 @@ class FilesWidget(QtWidgets.QWidget):
         self.btn_browse = btn_browse
         self.btn_save = btn_save
 
+        published_checkbox.setChecked(True)
+
     def set_asset_task(self, asset_id, task_name, task_type):
         if asset_id != self._asset_id:
             self._asset_doc = None
