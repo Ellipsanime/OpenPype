@@ -215,7 +215,7 @@ class ExtractBurninEllipsanime(openpype.api.Extractor):
                 burnin.add_text(username, ModifiedBurnins.BOTTOM_LEFT)
                 burnin.add_text(asset_and_task, ModifiedBurnins.BOTTOM_CENTERED)
                 burnin.add_text(
-                    "{}/{}".format(current_frame, last_frame),
+                    "{:0>4}/{:0>4}".format(current_frame, last_frame),
                     ModifiedBurnins.BOTTOM_RIGHT)
                 # Start render (overwrite output file if exist)
                 burnin.render(fullpath, overwrite=True)
