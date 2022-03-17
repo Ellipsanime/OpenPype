@@ -26,6 +26,7 @@ class StudioToolsDialog(QtWidgets.QWidget):
         config = project_settings[host]["scriptsmenu"]["definition"]
         _menu = project_settings[host]["scriptsmenu"]["name"]
         self.setWindowTitle(_menu)
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
         title = _menu.title()
         objectName = _menu.title().lower().replace(" ", "_")
