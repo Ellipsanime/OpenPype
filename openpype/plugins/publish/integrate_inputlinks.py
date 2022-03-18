@@ -8,6 +8,7 @@ class IntegrateInputLinks(pyblish.api.ContextPlugin):
     """Connecting version level dependency links"""
 
     order = pyblish.api.IntegratorOrder + 0.2
+    families = ["workfile"]
     label = "Connect Dependency InputLinks"
 
     def process(self, context):

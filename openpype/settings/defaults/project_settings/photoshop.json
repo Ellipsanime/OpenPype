@@ -26,6 +26,9 @@
             "invalid_chars": "[ \\\\/+\\*\\?\\(\\)\\[\\]\\{\\}:,]",
             "replace_char": "_"
         },
+        "ValidateSheetsGroup": {
+            "block_pipe": true
+        },
         "ExtractImage": {
             "enabled": false,
             "formats": [

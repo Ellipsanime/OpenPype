@@ -133,6 +133,19 @@
                 {
                     "type": "dict",
                     "collapsible": true,
+                    "key": "ValidateSheetsGroup",
+                    "label": "Validate that groups were not renamed by artist",
+                    "children": [
+                        {
+                            "type": "boolean",
+                            "key": "block_pipe",
+                            "label": "Should block pyblish"
+                        }
+                    ]
+                },
+                {
+                    "type": "dict",
+                    "collapsible": true,
                     "key": "ExtractImage",
                     "label": "Extract Image [OpenPype]",
                     "checkbox_key": "enabled",

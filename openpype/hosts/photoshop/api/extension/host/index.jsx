@@ -161,13 +161,30 @@ function saveAs(output_path, ext, as_copy){
     var saveName = output_path;
     var saveOptions;
     if (ext == 'jpg'){
-      saveOptions = new JPEGSaveOptions();
-      saveOptions.quality = 12;
-      saveOptions.embedColorProfile = true;
-      saveOptions.formatOptions = FormatOptions.PROGRESSIVE;
-      if(saveOptions.formatOptions == FormatOptions.PROGRESSIVE){
-      saveOptions.scans = 5};
-      saveOptions.matte = MatteType.NONE;
+        var fullFilePath = saveName
+        var idsave = stringIDToTypeID("save");
+        var desc5 = new ActionDescriptor();
+        var idas = stringIDToTypeID("as");
+        var desc6 = new ActionDescriptor();
+        var idextendedQuality = stringIDToTypeID("extendedQuality");
+        desc6.putInteger(idextendedQuality, 12);
+        var idscans = stringIDToTypeID("scans");
+        desc6.putInteger(idscans, 5);
+        var idmatteColor = stringIDToTypeID("matteColor");
+        var idnone = stringIDToTypeID("none");
+        desc6.putEnumerated(idmatteColor, idmatteColor, idnone);
+        var idJPEG = stringIDToTypeID("JPEG");
+        desc5.putObject(idas, idJPEG, desc6);
+        var idin = stringIDToTypeID("in");
+        desc5.putPath(idin, new File(fullFilePath));
+        var iddocumentID = stringIDToTypeID("documentID");
+        desc5.putInteger(iddocumentID, 219);
+        var idlowerCase = stringIDToTypeID("lowerCase");
+        desc5.putBoolean(idlowerCase, true);
+        var idsaveStage = stringIDToTypeID("saveStage");
+        var idsaveStageType = stringIDToTypeID("saveStageType");
+        var idsaveSucceeded = stringIDToTypeID("saveSucceeded");
+        desc5.putEnumerated(idsaveStage, idsaveStageType, idsaveSucceeded);
     }
     if (ext == 'png'){
       saveOptions = new PNGSaveOptions();

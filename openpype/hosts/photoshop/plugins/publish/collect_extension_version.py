@@ -43,10 +43,10 @@ class CollectExtensionVersion(pyblish.api.ContextPlugin):
         with open(manifest_url) as fp:
             content = fp.read()
 
-            found = re.findall(r'(ExtensionBundleVersion=")([0-10\.]+)(")',
-                               content)
+            found = re.search(r'(?<=ExtensionBundleVersion=")([\d.]+)(?=")',
+                            content)
             if found:
-                expected_version = found[0][1]
+                expected_version = found.group()
 
         if expected_version != installed_version:
             msg = "Expected version '{}' found '{}'\n".format(
