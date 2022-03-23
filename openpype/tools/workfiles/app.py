@@ -682,7 +682,8 @@ class FilesWidget(QtWidgets.QWidget):
         self.set_asset_task(
             self._asset_id, self._task_name, self._task_type
         )
-
+        tail, head = os.path.split(self._workfiles_root)
+        self._workfiles_root = os.path.join(tail, head.upper()).replace("\\", "/")
         # Create workfiles root folder
         if not os.path.exists(self._workfiles_root):
             log.debug("Initializing Work Directory: %s", self._workfiles_root)
