@@ -35,8 +35,10 @@ Temporary Items
 
 # CX_Freeze
 ###########
-/build
+/build/
 /dist/
+
+/openpype/build/
 
 /vendor/bin/*
 /vendor/python/*
@@ -45,7 +47,7 @@ Temporary Items
 
 # Documentation
 ###############
-/docs/build
+/docs/build/
 
 # Editor backup files #
 #######################
