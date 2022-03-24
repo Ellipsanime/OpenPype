@@ -44,6 +44,7 @@
             ]
         },
         "ExtractReview": {
+            "enabled": false,
             "make_image_sequence": false,
             "jpg_options": {
                 "tags": []

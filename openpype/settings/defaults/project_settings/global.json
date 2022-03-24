@@ -58,7 +58,7 @@
             }
         },
         "ExtractReview": {
-            "enabled": true,
+            "enabled": false,
             "profiles": [
                 {
                     "families": [],
