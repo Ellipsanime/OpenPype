@@ -199,6 +199,11 @@
                     "children": [
                         {
                             "type": "boolean",
+                            "key": "enabled",
+                            "label": "Enabled"
+                        },
+                        {
+                            "type": "boolean",
                             "key": "make_image_sequence",
                             "label": "Makes an image sequence instead of a flatten image"
                         },
