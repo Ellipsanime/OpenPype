@@ -185,6 +185,7 @@ class ExtractBurninEllipsanime(openpype.api.Extractor):
         month = anatomy_data.get("mm")
         year = anatomy_data.get("yyyy")
         date = "{}-{}-{}".format(day, month, year)
+        sheet_name = ''.join([i for i in instance.data["name"] if not i.isdigit()])
         version = "v{:0>3}".format(instance.data.get("version", 0))
         is_image = instance.data["family"] == "image"
         representations = instance.data.get("representations", [])
@@ -210,6 +211,8 @@ class ExtractBurninEllipsanime(openpype.api.Extractor):
                 # burnins_from_data(each, each)
                 # Options init sets burnin look
                 burnin = ModifiedBurnins(fullpath, options_init=options_init)
+                if task == 'turnconfo':
+                    burnin.add_text(sheet_name, ModifiedBurnins.TOP_CENTERED)
                 burnin.add_text(date, ModifiedBurnins.TOP_LEFT)
                 burnin.add_text(version, ModifiedBurnins.TOP_RIGHT)
                 burnin.add_text(username, ModifiedBurnins.BOTTOM_LEFT)
