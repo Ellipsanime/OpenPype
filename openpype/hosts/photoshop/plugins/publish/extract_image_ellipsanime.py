@@ -33,6 +33,7 @@ class ExtractImageEllipsanime(openpype.api.Extractor):
                     stub.get_active_document_name()
                 )[0]
                 sheet_number = re.search(r'(\d+)$', instance.data["name"])
+                sheet_name = re.search(r'[a-zA-Z]+', instance.data["name"]).group()
                 if sheet_number:
                     sheet_number = sheet_number.group()
                 else:
@@ -41,6 +42,9 @@ class ExtractImageEllipsanime(openpype.api.Extractor):
                 padded_sheet_number = "{:0>4}".format(sheet_number)
                 file_basename = file_basename + '.{}'.format(
                     padded_sheet_number)
+                if '_turnconfo_' in file_basename:
+                    splitted_file_basename = file_basename.find('_v')
+                    file_basename = file_basename[:splitted_file_basename] + '_{}'.format(sheet_name) + file_basename[splitted_file_basename:]
 
                 for extension in self.formats:
                     _filename = "{}.{}".format(file_basename, extension)
