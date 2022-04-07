@@ -18,10 +18,17 @@ class IntegrateShotgridPublish(pyblish.api.InstancePlugin):
         self.sg = context.data.get("shotgridSession")
 
         shotgrid_version = instance.data.get("shotgridVersion")
+        anatomy_data = instance.data["anatomyData"]
+        task_name = anatomy_data["task"]["name"]
 
         for representation in instance.data.get("representations", []):
-
             local_path = representation.get("published_path")
+            local_files = representation.get('files')
+            # if task is turnconfo put right filename
+            if task_name == 'turnconfo' and '.jpg' in local_files:
+                dst_path = local_path.rsplit("\\", 1)[0]
+                local_path = os.path.join(dst_path, local_files)
+
             code = os.path.basename(local_path)
 
             if representation.get("tags", []):

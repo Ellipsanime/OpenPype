@@ -645,10 +645,17 @@ class IntegrateAssetNew(pyblish.api.InstancePlugin):
                 integrated_file_sizes: dictionary of destination file url and
                 its size in bytes
         """
+        anatomy_data = instance.data["anatomyData"]
+        task_name = anatomy_data["task"]["name"]
         # store destination url and size for reporting and rollback
         integrated_file_sizes = {}
         transfers = list(instance.data.get("transfers", list()))
         for src, dest in transfers:
+            if task_name == 'turnconfo' and '.mov' not in src:
+                src_file_name = os.path.basename(src)
+                dest_file_name = src_file_name
+                dest_path = dest.rsplit("\\", 1)[0]
+                dest = os.path.join(dest_path, dest_file_name)
             if os.path.normpath(src) != os.path.normpath(dest):
                 dest = self.get_dest_temp_url(dest)
                 self.copy_file(src, dest)
@@ -976,6 +983,9 @@ class IntegrateAssetNew(pyblish.api.InstancePlugin):
             output_resources: array of dictionaries to be added to 'files' key
             in representation
         """
+        anatomy_data = instance.data["anatomyData"]
+        task_name = anatomy_data["task"]["name"]
+
         resources = list(instance.data.get("transfers", []))
         resources.extend(list(instance.data.get("hardlinks", [])))
 
@@ -985,6 +995,11 @@ class IntegrateAssetNew(pyblish.api.InstancePlugin):
         output_resources = []
         anatomy = instance.context.data["anatomy"]
         for _src, dest in resources:
+            if task_name == 'turnconfo' and '.mov' not in _src:
+                src_file_name = os.path.basename(_src)
+                dest_file_name = src_file_name
+                dest_path = dest.rsplit("\\", 1)[0]
+                dest = os.path.join(dest_path, dest_file_name)
             path = self.get_rootless_path(anatomy, dest)
             dest = self.get_dest_temp_url(dest)
             file_hash = openpype.api.source_hash(dest)
