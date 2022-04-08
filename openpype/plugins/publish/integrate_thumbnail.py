@@ -23,6 +23,8 @@ class IntegrateThumbnails(pyblish.api.InstancePlugin):
     ]
 
     def process(self, instance):
+        anatomy_data = instance.data["anatomyData"]
+        task_name = anatomy_data["task"]["name"]
 
         if not os.environ.get("AVALON_THUMBNAIL_ROOT"):
             self.log.warning(
@@ -113,8 +115,6 @@ class IntegrateThumbnails(pyblish.api.InstancePlugin):
             if e.errno != errno.EEXIST:
                 tp, value, tb = sys.exc_info()
                 six.reraise(tp, value, tb)
-
-        shutil.copy(src_full_path, dst_full_path)
 
         # Clean template data from keys that are dynamic
         template_data.pop("_id")

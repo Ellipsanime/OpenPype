@@ -303,6 +303,16 @@
         return runEvalScript("close()");
       });
 
+      RPC.addRoute('Photoshop.crop', function (data) {
+        log.warn('Server called client route "crop":', data);
+        return runEvalScript("crop(" + data.x_position + "," + data.y_position + "," + data.height + "," + data.width  + ")")
+            .then(function(result){
+                log.warn("imprint: " + result);
+                return result;
+        });
+
+      });
+
       RPC.call('Photoshop.ping').then(function (data) {
           log.warn('Result for calling server route "ping": ', data);
           return runEvalScript("ping()")

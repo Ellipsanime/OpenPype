@@ -211,7 +211,7 @@ class ExtractBurninEllipsanime(openpype.api.Extractor):
                 # burnins_from_data(each, each)
                 # Options init sets burnin look
                 burnin = ModifiedBurnins(fullpath, options_init=options_init)
-                if task == 'turnconfo':
+                if task == 'turnconfo' and '.psd' not in sheet_name:
                     burnin.add_text(sheet_name, ModifiedBurnins.TOP_CENTERED)
                 burnin.add_text(date, ModifiedBurnins.TOP_LEFT)
                 burnin.add_text(version, ModifiedBurnins.TOP_RIGHT)

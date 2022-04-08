@@ -538,3 +538,23 @@ class PhotoshopServerStub:
                 d.get("color_code")
             ))
         return ret
+
+    def crop(self, x_position, y_postion, height, width):
+        """Crop active document
+
+        Args:
+            x_position(int): x position of the crop center
+            y_position(int): y position of the crop center
+            height(int): height of the crop
+            width(int): width of the crop
+        Returns: None
+        """
+        self.websocketserver.call(
+            self.client.call(
+                'Photoshop.crop',
+                x_position=x_position,
+                y_postion=y_postion,
+                height=height,
+                width=width
+            )
+        )

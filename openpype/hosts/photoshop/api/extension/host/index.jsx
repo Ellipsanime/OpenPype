@@ -514,6 +514,9 @@ function moveAt(layer_name, new_index, adjustement){
     executeAction( charIDToTypeID( "move") , move_desc, DialogModes.NO );
 }
 
+function crop(x_position, y_position, height, width){
+    app.activeDocument.crop([x_position, y_position, height, width]);
+}
 // triggers when panel is opened, good for debugging
 //log(getActiveDocumentName());
 // log.show();
