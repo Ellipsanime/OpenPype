@@ -539,7 +539,7 @@ class PhotoshopServerStub:
             ))
         return ret
 
-    def crop(self, x_position, y_postion, height, width):
+    def crop(self, x_position, y_position, height, width):
         """Crop active document
 
         Args:
@@ -553,7 +553,7 @@ class PhotoshopServerStub:
             self.client.call(
                 'Photoshop.crop',
                 x_position=x_position,
-                y_postion=y_postion,
+                y_position=y_position,
                 height=height,
                 width=width
             )
