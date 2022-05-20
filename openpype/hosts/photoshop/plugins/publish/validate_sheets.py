@@ -32,10 +32,12 @@ class ValidateSheets(pyblish.api.ContextPlugin):
             if "instance" not in layer['id']:
                 continue
             match = re.search(r"(\d+)$", layer["subset"])
-            assert match, "Layer {} should end with digits".format(layer["subset"])
+            assert match, "Layer {} should end with digits".format(
+                layer["subset"])
             layer_numbers.append(int(match.group()))
 
         current_layers = set(layer_numbers)
-        normal_layers = set(range(1, max(layer_numbers)))
+        normal_layers = set(range(1, max(layer_numbers) + 1))
         missing_layers = normal_layers - current_layers
-        assert missing_layers == set(), "Missing layers: {}".format(missing_layers)
+        assert missing_layers == set(), "Missing layers: {}".format(
+            missing_layers)

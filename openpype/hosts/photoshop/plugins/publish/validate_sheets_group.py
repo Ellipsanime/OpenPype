@@ -33,6 +33,9 @@ class ValidateSheetsGroup(pyblish.api.ContextPlugin):
                 continue
             sheet_name = layer["subset"]
             layer_group = stub.get_layer(layer['uuid'])
+            if not layer_group:
+                stub.remove_instance(layer['uuid'])
+                return
             group_name = layer_group.name[2:]
             if group_name != sheet_name:
                 renamed_groups.append((group_name, sheet_name))
