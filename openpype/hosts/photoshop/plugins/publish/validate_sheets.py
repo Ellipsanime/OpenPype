@@ -24,7 +24,7 @@ class ValidateSheets(pyblish.api.ContextPlugin):
 
     label = "No missing sheet"
     hosts = ["photoshop"]
-    order = openpype.api.ValidateContentsOrder
+    order = openpype.api.ValidateContentsOrder + 0.1
 
     def process(self, context):
         layer_numbers = []
