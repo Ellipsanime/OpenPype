@@ -45,10 +45,10 @@ Artist Standard Workflow
 Building loads a template and populate it with required assets representations (CF: https://github.com/Ellipsanime/OpenPype/blob/3.8.2-el12/openpype/lib/README.md)
 
 Required and produced by each step:
-![StepRequireProduces](https://user-images.githubusercontent.com/82808268/178270692-461de682-423e-42a8-b1a3-323b01f0a995.png)
+![workflow_ellipse_openpype_full drawio (2)](https://user-images.githubusercontent.com/82808268/178302758-a695814a-08df-4bc5-bb42-6f261e7c18a7.png)
 
 
-## Developing
+## Developping
 
 ### Extension
 When developing the extension you can load it [unsigned](https://github.com/Adobe-CEP/CEP-Resources/blob/master/CEP_9.x/Documentation/CEP%209.0%20HTML%20Extension%20Cookbook.md#debugging-unsigned-extensions).
