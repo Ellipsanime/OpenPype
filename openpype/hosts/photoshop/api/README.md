@@ -28,6 +28,13 @@ The Photoshop extension can be found under `Window > Extensions > Avalon`. Once 
 
 ![Untitled](https://user-images.githubusercontent.com/82808268/178270457-48b26d19-81ec-4855-a310-566632006049.png)
 
+Build : To load and build template given by OpenPype configuration (CF: https://github.com/Ellipsanime/OpenPype/blob/3.8.2-el12/openpype/lib/README.md)
+Save : To save your work as a new work version
+Add sheet : Add a group layer to be extracted during snapshot and publish
+Sanity : Execute sanities and checks on current workfile
+Snapshot : To make a Version and present your work to supervisors
+Publish : To confirm the work and publish it on OpenPype and Shotgrid
+
 ## Workflow
 /!\ This section only concern Ellipsanime's fork of OpenPype
 The fork is mainly centered around Shotgrid
