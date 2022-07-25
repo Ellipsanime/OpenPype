@@ -44,8 +44,9 @@ Artist Standard Workflow
 
 Building loads a template and populate it with required assets representations (see https://github.com/Ellipsanime/OpenPype/blob/3.8.2-el12/openpype/lib/README.md)
 
+
 Required and produced by each step:
-![workflow_ellipse_openpype_full drawio (5)](https://user-images.githubusercontent.com/82808268/180746338-1a4ec3fa-aa0b-4659-a11c-5f054e40669f.png)
+![workflow_ellipse_openpype_full drawio (6)](https://user-images.githubusercontent.com/82808268/180746693-26a8d56a-e5cd-4147-8238-69fd7ef8758e.png)
 *Shotgrid Leecher is a tool developed by Ellipsanime to bridge between OpenPype and Shotgrid databases (https://github.com/Ellipsanime/shotgrid-leecher)
 
 ## Developping
