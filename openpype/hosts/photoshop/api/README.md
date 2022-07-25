@@ -40,7 +40,7 @@ The Photoshop extension can be found under `Window > Extensions > Avalon`. Once 
 The fork is mainly centered around Shotgrid
 
 Artist Standard Workflow  
-![Workflow](https://user-images.githubusercontent.com/82808268/178270678-eac1e14e-9c8c-42c7-a997-7e41e9fb9450.png)
+![workflow_ellipse_openpype_full drawio (7)](https://user-images.githubusercontent.com/82808268/180750106-5d86a717-5bd7-436b-a05e-e9cd203269e3.png)
 
 Building loads a template and populate it with required assets representations (see https://github.com/Ellipsanime/OpenPype/blob/3.8.2-el12/openpype/lib/README.md)
 
